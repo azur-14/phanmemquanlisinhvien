@@ -7,6 +7,6 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home); // Ensure you have a corresponding layout file
+        setContentView(R.layout.activity_viewstudent); // Ensure you have a corresponding layout file
     }
 }
