@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:title="Thêm"
-        android:id="@+id/Add"></item>
+        android:title="Nhập dữ liệu bằng file"
+        android:id="@+id/Import"></item>
+    <item
+        android:title="Xuất dữ liệu ra file"
+        android:id="@+id/Export"></item>
 </menu>

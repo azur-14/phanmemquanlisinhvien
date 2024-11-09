@@ -21,6 +21,9 @@
             android:name=".AddNewUserAccountActivity"
             android:exported="false" />
         <activity
+            android:name=".AddStudentActivity"
+            android:exported="false" />
+        <activity
             android:name=".UserProfileActivity"
             android:exported="false" />
         <activity

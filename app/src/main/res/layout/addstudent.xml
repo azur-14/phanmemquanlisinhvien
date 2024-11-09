@@ -1,4 +1,4 @@
-<!-- res/layout/activity_add_student.xml -->
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,11 +21,39 @@
         android:inputType="text"/>
 
     <EditText
-        android:id="@+id/numberEditText"
+        android:id="@+id/studentEmailEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter Number"
+        android:hint="Enter Email"
+        android:inputType="textEmailAddress"/>
+
+    <EditText
+        android:id="@+id/studentPhoneEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Phone Number"
+        android:inputType="phone"/>
+
+    <EditText
+        android:id="@+id/studentAgeEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Age"
         android:inputType="number"/>
+
+    <EditText
+        android:id="@+id/studentFacultyEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Faculty"
+        android:inputType="text"/>
+
+    <EditText
+        android:id="@+id/studentMajorEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Major"
+        android:inputType="text"/>
 
     <Button
         android:id="@+id/addButton"

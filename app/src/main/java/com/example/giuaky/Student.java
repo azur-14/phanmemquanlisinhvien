@@ -1,6 +1,7 @@
 package com.example.giuaky;
+import java.io.Serializable;
 
-public class Student extends User {
+public class Student extends User implements Serializable {
 
     private String studentID;
     private String faculty;
@@ -12,8 +13,6 @@ public class Student extends User {
         this.faculty = faculty;
         this.major = major;
     }
-
-
 
     public String getStudentID() {
         return studentID;

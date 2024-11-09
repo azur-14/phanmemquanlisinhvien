@@ -23,4 +23,15 @@
         <item>Điện - Điện Tử</item>
         <item>Toán - Thống kê</item>
     </string-array>
+    <string name="search_hint">Tìm kiếm sinh viên</string>
+    <string name="filter_label">Lọc Theo</string>
+    <string name="sort_order_toggle">Toggle sort order</string>
+
+    <string-array name="sort_options">
+        <item>MSSV (Tăng dần)</item>
+        <item>MSSV (Giảm dần)</item>
+        <item>Tên (A-Z)</item>
+        <item>Tên (Z-A)</item>
+        <item>Khoa</item>
+    </string-array>
 </resources>

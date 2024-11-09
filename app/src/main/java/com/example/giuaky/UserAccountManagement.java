@@ -60,9 +60,12 @@ public class UserAccountManagement extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
-        if(id == R.id.Add){
+        if(id == R.id.Import){
             Intent intent = new Intent(UserAccountManagement.this, AddNewUserAccountActivity.class);
             startActivity(intent);
+        }
+        if(id == R.id.Export){
+            ///
         }
         if (id == android.R.id.home) {
             finish(); // close this activity and return to preview activity (if there is any)

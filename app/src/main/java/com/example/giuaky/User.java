@@ -2,7 +2,7 @@ package com.example.giuaky;
 
 import java.io.Serializable;
 
-public class User {
+public class User implements Serializable {
     private String role; // "admin", "teacher", "student"
     private String name;
     private String email;

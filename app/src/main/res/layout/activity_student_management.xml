@@ -6,24 +6,178 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".TeacherManagementActivity">
-    
+    tools:context=".StudentManagementActivity">
+
+    <!-- Top App Bar -->
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/toolbar"
         android:background="@color/blue"
-        app:title="Quản lý học sinh"
+        app:title="Student Management"
         app:titleTextColor="@color/sand"
-        android:theme="@style/Base.Theme.Giuaky"></androidx.appcompat.widget.Toolbar>
+        android:theme="@style/Base.Theme.Giuaky" />
 
-    
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rcvStudent"
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#F9F5F1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="40dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="49dp"
+                android:background="@drawable/background_stroke"
+                android:elevation="4dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="STUDENT MANAGEMENT"
+                    android:textColor="#292562"
+                    android:textSize="30sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- Search and Filter -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="20dp"
+                android:layout_marginBottom="29dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_weight="1"
+                    android:hint="@string/search_hint" />
+
+                <ImageButton
+                    android:id="@+id/searchitem"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:background="#FCF5FD"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/baseline_search_24" />
+            </LinearLayout>
+
+            <!-- Sorting Options -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="19dp"
+                android:layout_marginBottom="32dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageButton
+                    android:id="@+id/sortbutton"
+                    android:layout_width="12dp"
+                    android:layout_height="15dp"
+                    android:layout_marginEnd="12dp"
+                    android:scaleType="fitXY"
+                    android:src="@android:drawable/btn_dropdown" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/filter_label"
+                    android:textColor="#345EA8"
+                    android:textSize="14sp" />
+
+                <Spinner
+                    android:id="@+id/sortbaseon"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="#FFFFFF" />
+
+                <ImageButton
+                    android:id="@+id/toggleSortOrder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@android:drawable/ic_menu_sort_by_size"
+                    android:contentDescription="@string/sort_order_toggle" />
+            </LinearLayout>
+
+            <!-- Student List -->
+            <LinearLayout
+                android:id="@+id/studentlist"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/list_border"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rcvStudent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- Bottom Buttons -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"></androidx.recyclerview.widget.RecyclerView>
+        android:layout_marginHorizontal="27dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="#345EA8"
+            android:elevation="4dp"
+            android:paddingVertical="14dp"
+            android:text="Delete"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
 
+        <Button
+            android:id="@+id/addButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="#345EA8"
+            android:elevation="4dp"
+            android:paddingVertical="14dp"
+            android:text="Add"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
 
+        <Button
+            android:id="@+id/viewButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#345EA8"
+            android:elevation="4dp"
+            android:paddingVertical="14dp"
+            android:text="View"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+    </LinearLayout>
 </LinearLayout>
