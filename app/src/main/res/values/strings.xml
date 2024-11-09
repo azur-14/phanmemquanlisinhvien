@@ -1,4 +1,26 @@
 <resources>
     <string name="app_name">giuaky</string>
-    <string name="student_management">Student Management</string>
+    <string-array name="degree">
+        <item>-- Chọn bằng cấp--</item>
+        <item>Kĩ sư</item>
+        <item>Cử nhân</item>
+        <item>Tiến sĩ</item>
+        <item>Thạc sĩ</item>
+        <item>Giáo sư</item>
+    </string-array>
+    <string-array name="faculty">
+        <item>-- Chọn khoa --</item>
+        <item>Công Nghệ Thông Tin</item>
+        <item>Kĩ Thuật Công Trình</item>
+        <item>Mỹ thuật công nghiệp</item>
+        <item>Dược</item>
+        <item>Khoa Học Ứng Dụng</item>
+        <item>Luật</item>
+        <item>Tài Chính Ngân Hàng</item>
+        <item>Ngôn Ngữ Anh</item>
+        <item>Quản Trị Kinh Doanh</item>
+        <item>Kinh Tế</item>
+        <item>Điện - Điện Tử</item>
+        <item>Toán - Thống kê</item>
+    </string-array>
 </resources>
