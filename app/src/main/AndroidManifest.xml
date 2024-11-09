@@ -10,10 +10,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Giuaky"
+        android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
         tools:targetApi="31">
         <activity android:name=".MainActivity"
             android:exported="true">
+        </activity>
+        <activity android:name=".AddStudentActivity">
         </activity>
         <activity
             android:name=".Home"
