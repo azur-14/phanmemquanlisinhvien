@@ -6,8 +6,11 @@ import android.widget.ArrayAdapter;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatSpinner;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
-public class AddNewUserAccountActivity extends AppCompatActivity {
+public class AddNewUserActivity extends AppCompatActivity {
     AppCompatSpinner selectedDegree;
     AppCompatSpinner selectedFaculty;
 
@@ -18,18 +21,14 @@ public class AddNewUserAccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_add_teacher);
 
         selectedDegree = findViewById(R.id.list_degree);
-        ArrayAdapter<CharSequence> adapterDegree = ArrayAdapter.createFromResource(this,R.array.degree, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> adapterDegree = ArrayAdapter.createFromResource(this, R.array.degree, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         adapterDegree.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         selectedDegree.setAdapter(adapterDegree);
 
         selectedFaculty = findViewById(R.id.list_faculty);
-        ArrayAdapter<CharSequence> adapterFaculty = ArrayAdapter.createFromResource(this,R.array.faculty, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
+        ArrayAdapter<CharSequence> adapterFaculty = ArrayAdapter.createFromResource(this, R.array.faculty, androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         adapterFaculty.setDropDownViewResource(androidx.appcompat.R.layout.support_simple_spinner_dropdown_item);
         selectedFaculty.setAdapter(adapterFaculty);
         selectedFaculty.setDropDownVerticalOffset(260);
-
-
-
-
     }
 }

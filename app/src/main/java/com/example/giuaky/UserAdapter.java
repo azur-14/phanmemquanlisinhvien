@@ -44,9 +44,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         public void setData(int pos) {
-            name.setText(userList.get(pos).getName());
-            email.setText(userList.get(pos).getEmail());
-            role.setText(userList.get(pos).getRole());
+            name.setText("Tên: " + userList.get(pos).getName());
+            email.setText("Email: " + userList.get(pos).getEmail());
+            role.setText("Vai trò: " + userList.get(pos).getRole());
         }
     }
 }

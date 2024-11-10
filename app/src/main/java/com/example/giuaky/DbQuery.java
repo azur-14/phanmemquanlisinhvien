@@ -1,6 +1,8 @@
 package com.example.giuaky;
 
 import android.content.Context;
+import android.util.ArrayMap;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,35 +19,102 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 
 public class DbQuery {
     public static FirebaseFirestore db = FirebaseFirestore.getInstance();
     public static List<User> userList = new ArrayList<>();
 
-    public static void loadUserAccount(MyCompleteListener myCompleteListener){
+//    public static void loadUserAccount(final MyCompleteListener myCompleteListener){
+//        userList.clear();
+//
+//        db.collection("USERS")
+//                .get()
+//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+//                    @Override
+//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+//                        Map<String, QueryDocumentSnapshot> docList = new ArrayMap<>();
+//
+//                        for(QueryDocumentSnapshot doc : queryDocumentSnapshots){
+//                            docList.put(doc.getId(),doc);
+//                        }
+//                        QueryDocumentSnapshot userListItem = docList.get("TOTAL_USER");
+//
+//                        int totalUser = userListItem.getLong("count").intValue();
+//
+//                        for (int i = 1; i <= totalUser; i++) {
+//                            String userId = userListItem.getString("USER" + String.valueOf(i) + "_ID");
+//                            QueryDocumentSnapshot userDoc = docList.get(userId);
+//                            String role = userDoc.getString("ROLE");
+//                            String name = userDoc.getString("NAME");
+//                            String email = userDoc.getString("EMAIL");
+//                            String phoneNumber = userDoc.getString("PHONE_NUMBER");
+//                            Long age = userDoc.getLong("AGE");
+//                            String status = userDoc.getString("STATUS");
+//                            userList.add(new User(role, name, email, phoneNumber, age.intValue(), status));
+//
+//                        }
+//                        myCompleteListener.onSuccess();
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        myCompleteListener.onFailure();
+//                    }
+//                });
+//    }
+
+    public static void loadUserAccount(final MyCompleteListener myCompleteListener) {
         userList.clear();
-        db.collection("USERS").get()
+        db.collection("USERS")
+                .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        Map<String, QueryDocumentSnapshot> docList = new ArrayMap<>();
+
+                        // Lưu trữ các tài liệu vào docList
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            userList.add(new User(
-                                    doc.getString("ROLE"),
-                                    doc.getString("NAME"),
-                                    doc.getString("EMAIL"),
-                                    doc.getString("PHONE_NUMBER"),
-                                    doc.getLong("AGE").intValue(),
-                                    doc.getString("STATUS")
-                            ));
+                            docList.put(doc.getId(), doc);
                         }
-                        myCompleteListener.onSuccess();
 
+                        // Lấy thông tin tổng số người dùng
+                        QueryDocumentSnapshot userListItem = docList.get("TOTAL_USER");
+                        if (userListItem != null) {
+                            long totalUser = userListItem.getLong("count");
+
+                            for (int i = 1; i <= totalUser; i++) {
+                                String userId = userListItem.getString("USER" + i + "_ID");
+                                QueryDocumentSnapshot doc = docList.get(userId);
+
+                                if (doc != null) {
+                                    String role = doc.getString("ROLE");
+                                    String name = doc.getString("NAME");
+                                    String email = doc.getString("EMAIL");
+                                    String phoneNumber = doc.getString("PHONE_NUMBER");
+                                    Long age = doc.getLong("AGE");
+                                    String status = doc.getString("STATUS");
+
+                                    userList.add(new User(role, name, email, phoneNumber, age != null ? age.intValue() : 0, status));
+                                } else {
+                                    Log.w("LoadUserAccount", "Không tìm thấy user với ID: " + userId);
+                                }
+                            }
+
+                            Log.d("LoadUserAccount", "Đã thêm " + userList.size() + " người dùng vào danh sách.");
+                            myCompleteListener.onSuccess();
+                        } else {
+                            Log.w("LoadUserAccount", "Không tìm thấy tài liệu TOTAL_USER.");
+                            myCompleteListener.onFailure();
+                        }
                     }
-
                 })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Log.e("LoadUserAccount", "Lỗi khi tải dữ liệu người dùng: " + e.getMessage());
                         myCompleteListener.onFailure();
                     }
                 });
