@@ -32,24 +32,24 @@ public class MainActivity extends AppCompatActivity {
         Button btnUserProfile = findViewById(R.id.btnUserProfile);
         Button btnLogout = findViewById(R.id.btnLogout);
         welcomeText.setText("Welcome, Admin");
-        DbQuery.getRole().addOnSuccessListener(new OnSuccessListener<String>() {
-            @Override
-            public void onSuccess(String role) {
-                // Check if the role is "admin" and update the button visibility
-                if (role.equals("admin")) {
-                    btnUserAccountManagement.setVisibility(View.VISIBLE);
-                } else {
-                    btnUserAccountManagement.setVisibility(View.GONE);
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                // Handle failure, for example, hide the button if there's an error
-                btnUserAccountManagement.setVisibility(View.GONE);
-                Log.e("UserRole", "Failed to get user role", e);
-            }
-        });
+//        DbQuery.getRole().addOnSuccessListener(new OnSuccessListener<String>() {
+//            @Override
+//            public void onSuccess(String role) {
+//                // Check if the role is "admin" and update the button visibility
+//                if (role.equals("admin")) {
+//                    btnUserAccountManagement.setVisibility(View.VISIBLE);
+//                } else {
+//                    btnUserAccountManagement.setVisibility(View.GONE);
+//                }
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                // Handle failure, for example, hide the button if there's an error
+//                btnUserAccountManagement.setVisibility(View.GONE);
+//                Log.e("UserRole", "Failed to get user role", e);
+//            }
+//        });
 
         btnUserAccountManagement.setOnClickListener(new View.OnClickListener() {
             @Override

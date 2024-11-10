@@ -1,5 +1,7 @@
 package com.example.giuaky;
 
+import static com.example.giuaky.DbQuery.userList;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -38,8 +40,7 @@ public class UserAccountManagement extends AppCompatActivity {
         DbQuery.loadUserAccount(new MyCompleteListener(){
             @Override
             public void onSuccess() {
-
-                userAdapter = new UserAdapter(DbQuery.userList);
+                userAdapter = new UserAdapter(userList);
                 rcvAccountUser.setAdapter(userAdapter);
             }
 
