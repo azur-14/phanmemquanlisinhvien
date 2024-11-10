@@ -62,7 +62,7 @@ public class UserAccountManagement extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.Import){
-            Intent intent = new Intent(UserAccountManagement.this, AddNewUserAccountActivity.class);
+            Intent intent = new Intent(UserAccountManagement.this, AddNewUserActivity.class);
             startActivity(intent);
         }
         if(id == R.id.Export){

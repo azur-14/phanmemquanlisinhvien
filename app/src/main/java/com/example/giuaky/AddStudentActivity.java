@@ -17,9 +17,9 @@ public class AddStudentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.addstudent); // Đảm bảo layout này tồn tại
+        setContentView(R.layout.addstudent); // Ensure this layout exists
 
-        // Khởi tạo các trường nhập liệu
+        // Initialize input fields
         nameEditText = findViewById(R.id.nameEditText);
         studentIdEditText = findViewById(R.id.studentIdEditText);
         studentEmailEditText = findViewById(R.id.studentEmailEditText);
@@ -29,7 +29,7 @@ public class AddStudentActivity extends AppCompatActivity {
         studentMajorEditText = findViewById(R.id.studentMajorEditText);
         addButton = findViewById(R.id.addButton);
 
-        // Thiết lập listener cho nút thêm sinh viên
+        // Set listener for the add button
         addButton.setOnClickListener(v -> addStudent());
     }
 
@@ -42,7 +42,7 @@ public class AddStudentActivity extends AppCompatActivity {
         String major = studentMajorEditText.getText().toString().trim();
         int age;
 
-        // Xác thực dữ liệu nhập
+        // Validate input data
         if (name.isEmpty()) {
             Toast.makeText(this, "Please enter a name.", Toast.LENGTH_SHORT).show();
             nameEditText.requestFocus();
@@ -85,7 +85,7 @@ public class AddStudentActivity extends AppCompatActivity {
             return;
         }
 
-        // Lấy tuổi và xử lý ngoại lệ
+        // Parse age and handle exceptions
         try {
             age = Integer.parseInt(studentAgeEditText.getText().toString());
         } catch (NumberFormatException e) {
@@ -94,10 +94,10 @@ public class AddStudentActivity extends AppCompatActivity {
             return;
         }
 
-        // Tạo đối tượng Student mới
+        // Create a new Student object
         Student newStudent = new Student("student", name, email, phone, "normal", studentId, age, faculty, major);
 
-        // Gửi dữ liệu trở lại Activity chính
+        // Send data back to the main activity
         Intent resultIntent = new Intent();
         resultIntent.putExtra("NEW_STUDENT", newStudent);
         setResult(RESULT_OK, resultIntent);

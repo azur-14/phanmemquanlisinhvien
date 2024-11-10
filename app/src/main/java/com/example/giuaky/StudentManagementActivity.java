@@ -46,30 +46,32 @@ public class StudentManagementActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_student_management);
 
-        // Khởi tạo toolbar
+        // Initialize toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        // Khởi tạo danh sách sinh viên và adapter
+        // Initialize student list and adapter
         students = new ArrayList<>();
-        initializeSampleData();
         studentAdapter = new StudentAdapter(students);
 
-        // Khởi tạo RecyclerView
+        // Initialize RecyclerView
         rcvStudent = findViewById(R.id.rcvStudent);
         rcvStudent.setAdapter(studentAdapter);
         rcvStudent.setLayoutManager(new LinearLayoutManager(this));
 
-        // Khởi tạo các thành phần tìm kiếm
+        // Initialize search components
         searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchitem);
 
-        // Khởi tạo các thành phần sắp xếp
+        // Initialize sort spinner and buttons
         sortSpinner = findViewById(R.id.sortbaseon);
         deleteButton = findViewById(R.id.deleteButton);
         addButton = findViewById(R.id.addButton);
+
+        // Load students from Firestore
+        loadStudents();
 
         addStudentLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -79,9 +81,20 @@ public class StudentManagementActivity extends AppCompatActivity {
                         if (data != null) {
                             Student newStudent = (Student) data.getSerializableExtra("NEW_STUDENT");
                             if (newStudent != null) {
-                                students.add(newStudent); // Thêm sinh viên vào danh sách
-                                studentAdapter.updateStudentList(new ArrayList<>(students)); // Cập nhật RecyclerView
-                                Toast.makeText(this, "Student added successfully.", Toast.LENGTH_SHORT).show();
+                                // Add student to Firestore
+                                DbQuery.addStudent(newStudent, new MyCompleteListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        students.add(newStudent);
+                                        studentAdapter.updateStudentList(new ArrayList<>(students));
+                                        Toast.makeText(StudentManagementActivity.this, "Student added successfully.", Toast.LENGTH_SHORT).show();
+                                    }
+
+                                    @Override
+                                    public void onFailure() {
+                                        Toast.makeText(StudentManagementActivity.this, "Failed to add student.", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
                             } else {
                                 Toast.makeText(this, "No student data received.", Toast.LENGTH_SHORT).show();
                             }
@@ -90,19 +103,19 @@ public class StudentManagementActivity extends AppCompatActivity {
                 }
         );
 
-        // Thiết lập listener cho addButton
+        // Setup listener for addButton
         addButton.setOnClickListener(v -> {
             Intent intent = new Intent(StudentManagementActivity.this, AddStudentActivity.class);
-            addStudentLauncher.launch(intent); // Sử dụng ActivityResultLauncher
+            addStudentLauncher.launch(intent); // Launch activity to add new student
         });
 
-        // Thiết lập Spinner cho các tùy chọn sắp xếp
+        // Setup Spinner for sorting options
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sort_options, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sortSpinner.setAdapter(adapter);
 
-        // Thêm TextWatcher cho input tìm kiếm
+        // Add TextWatcher for search input
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -116,13 +129,13 @@ public class StudentManagementActivity extends AppCompatActivity {
             public void afterTextChanged(Editable s) {}
         });
 
-        // Thiết lập listener cho nút tìm kiếm
+        // Setup listener for search button
         searchButton.setOnClickListener(v -> performSearch(searchEditText.getText().toString()));
 
-        // Thiết lập listener cho nút xóa
+        // Setup listener for delete button
         deleteButton.setOnClickListener(v -> deleteSelectedStudents());
 
-        // Xử lý sự kiện chọn mục trong Spinner
+        // Handle item selection in Spinner
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -134,10 +147,24 @@ public class StudentManagementActivity extends AppCompatActivity {
         });
     }
 
-    private void initializeSampleData() {
-        students.add(new Student("student", "Lê Ngọc Mạnh Hùng", "lengocmanhhung@student.tdtu.edu.vn", "0987654321", "normal", "50001", 23, "Công nghệ thông tin", "Kĩ thuật phần mềm"));
-        students.add(new Student("student", "Trần Gia Mẫn", "trangiaman@student.tdtu.edu.vn", "0984425421", "normal", "50002", 23, "Công nghệ thông tin", "Kĩ thuật phần mềm"));
-        // Thêm dữ liệu mẫu khác nếu cần
+    private void loadStudents() {
+        DbQuery.loadStudents(new MyCompleteListener() {
+            @Override
+            public void onSuccess() {
+                // Assuming userList now contains the loaded student data
+                students.clear();
+                students.addAll(DbQuery.userList.stream()
+                        .filter(user -> user instanceof Student)
+                        .map(user -> (Student) user)
+                        .collect(Collectors.toList()));
+                studentAdapter.updateStudentList(students);
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(StudentManagementActivity.this, "Failed to load students.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void performSearch(String query) {
@@ -188,10 +215,26 @@ public class StudentManagementActivity extends AppCompatActivity {
             return;
         }
 
-        students.removeAll(selectedStudents);
-        studentAdapter.updateStudentList(students);
+        // Loop through selected students and delete from Firestore
+        for (Student student : selectedStudents) {
+            DbQuery.deleteStudent(student.getStudentID(), new MyCompleteListener() {
+                @Override
+                public void onSuccess() {
+                    // Remove from local list after successful deletion
+                    students.remove(student);
+                    studentAdapter.updateStudentList(students);
+                    Toast.makeText(StudentManagementActivity.this, "Selected students deleted from Firestore.", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onFailure() {
+                    Toast.makeText(StudentManagementActivity.this, "Failed to delete student: " + student.getName(), Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
+        // Clear selections in the adapter
         studentAdapter.clearSelections();
-        Toast.makeText(this, "Selected students deleted.", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -204,15 +247,15 @@ public class StudentManagementActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.Import) {
-            ///
+            // Handle import functionality
             return true;
         }
         if (id == R.id.Export) {
-            ///
+            // Handle export functionality
             return true;
         }
         if (id == android.R.id.home) {
-            finish(); // Đóng Activity hiện tại
+            finish(); // Close current activity
             return true;
         }
         return super.onOptionsItemSelected(item);

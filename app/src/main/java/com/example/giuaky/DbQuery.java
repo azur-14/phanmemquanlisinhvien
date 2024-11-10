@@ -151,4 +151,66 @@ public class DbQuery {
 
         return taskCompletionSource.getTask();
     }
+    public static void loadStudents(final MyCompleteListener myCompleteListener) {
+        userList.clear();
+        db.collection("USERS")
+                .whereEqualTo("ROLE", "student")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                            String role = doc.getString("ROLE");
+                            String name = doc.getString("NAME");
+                            String email = doc.getString("EMAIL");
+                            String phoneNumber = doc.getString("PHONE_NUMBER");
+                            Long age = doc.getLong("AGE");
+                            String status = doc.getString("STATUS");
+                            String studentID = doc.getString("STUDENT_ID");
+                            String faculty = doc.getString("FACULTY");
+                            String major = doc.getString("MAJOR");
+
+                            // Create a Student object and add it to the list
+                            Student student = new Student(role, name, email, phoneNumber, status, studentID, age != null ? age.intValue() : 0, faculty, major);
+                            userList.add(student);
+                        }
+                        myCompleteListener.onSuccess();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.e("LoadStudents", "Error loading student data: " + e.getMessage());
+                        myCompleteListener.onFailure();
+                    }
+                });
+    }
+    public static void deleteStudent(String studentID, final MyCompleteListener myCompleteListener) {
+        db.collection("USERS")
+                .whereEqualTo("STUDENT_ID", studentID)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                        doc.getReference().delete();
+                    }
+                    myCompleteListener.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DeleteStudent", "Error deleting student: " + e.getMessage());
+                    myCompleteListener.onFailure();
+                });
+    }
+    public static void addStudent(Student student, final MyCompleteListener myCompleteListener) {
+        db.collection("USERS")
+                .document(student.getStudentID()) // Assuming STUDENT_ID is unique
+                .set(student)
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DbQuery", "Student added successfully: " + student.getStudentID());
+                    myCompleteListener.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DbQuery", "Error adding student: " + e.getMessage());
+                    myCompleteListener.onFailure();
+                });
+    }
 }
