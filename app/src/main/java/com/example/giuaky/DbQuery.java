@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.widget.Toast;
+import java.util.HashMap;
 
 import androidx.annotation.NonNull;
 
@@ -201,9 +202,29 @@ public class DbQuery {
                 });
     }
     public static void addStudent(Student student, final MyCompleteListener myCompleteListener) {
+        // Ensure the student object is not null and contains valid data
+        if (student == null || student.getStudentID() == null || student.getStudentID().isEmpty()) {
+            Log.e("DbQuery", "Student or Student ID is null or empty");
+            myCompleteListener.onFailure();
+            return;
+        }
+
+        // Prepare the data to be stored in Firestore with uppercase keys
+        Map<String, Object> studentData = new HashMap<>();
+        studentData.put("ROLE", student.getRole());
+        studentData.put("NAME", student.getName());
+        studentData.put("EMAIL", student.getEmail());
+        studentData.put("PHONE_NUMBER", student.getPhoneNumber());
+        studentData.put("STATUS", student.getStatus());
+        studentData.put("STUDENT_ID", student.getStudentID());
+        studentData.put("AGE", student.getAge());
+        studentData.put("FACULTY", student.getFaculty()); // Add this if needed
+        studentData.put("MAJOR", student.getMajor());   // Add this if needed
+
+        // Add the student document to Firestore
         db.collection("USERS")
-                .document(student.getStudentID()) // Assuming STUDENT_ID is unique
-                .set(student)
+                .document(student.getStudentID()) // Use STUDENT_ID as the document ID
+                .set(studentData)
                 .addOnSuccessListener(aVoid -> {
                     Log.d("DbQuery", "Student added successfully: " + student.getStudentID());
                     myCompleteListener.onSuccess();
