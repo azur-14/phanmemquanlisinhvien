@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        if(mAuth.getCurrentUser() == null){
+        if(mAuth.getCurrentUser() != null){
             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
             startActivity(intent);
         } else {

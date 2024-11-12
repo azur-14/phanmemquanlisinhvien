@@ -1,26 +1,26 @@
 package com.example.giuaky;
 
-import android.annotation.SuppressLint;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentViewHolder> {
-    private List<Student> studentList; // Original list of students
-    private List<Student> selectedStudents; // List to keep track of selected students
+    private List<Student> studentList;
 
     public StudentAdapter(List<Student> studentList) {
         this.studentList = studentList;
-        this.selectedStudents = new ArrayList<>(); // Initialize the ArrayList
     }
 
     @NonNull
@@ -30,23 +30,25 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         return new StudentViewHolder(view);
     }
 
+
+    //for(int position = 0; position < teacherList.size(); position++)
     @Override
     public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         Student student = studentList.get(position);
-        holder.img.setImageResource(R.drawable.student_image); // Placeholder image
+        holder.img.setImageResource(R.drawable.student_image);
         holder.name.setText("Họ và tên: " + student.getName());
         holder.faculty.setText("Khoa: " + student.getFaculty());
         holder.mssv.setText("MSSV: " + student.getStudentID());
+        holder.major.setText("Ngành: " + student.getMajor());
+        holder.selectedStudent.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                PopupMenu popupMenu = new PopupMenu(view.getContext(), view);
+                popupMenu.inflate(R.menu.popup_menu);
+                popupMenu.show();
+                popupMenu.setGravity(Gravity.END); // Đưa menu ra lề phải
 
-        // Set the checkbox state
-        holder.selectedStudent.setOnCheckedChangeListener(null); // Prevent triggering listener
-        holder.selectedStudent.setChecked(selectedStudents.contains(student));
-
-        holder.selectedStudent.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                selectedStudents.add(student);
-            } else {
-                selectedStudents.remove(student);
+                return true;
             }
         });
     }
@@ -56,29 +58,10 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         return studentList.size();
     }
 
-    public List<Student> getSelectedStudents() {
-        return selectedStudents; // Return the list of selected students
-    }
-
-    public void clearSelections() {
-        selectedStudents.clear(); // Clear the selected students
-        notifyDataSetChanged(); // Refresh the adapter
-    }
-
-    // Method to update the student list
-    @SuppressLint("NotifyDataSetChanged")
-    public void updateStudentList(List<Student> newStudentList) {
-        this.studentList = newStudentList;
-        clearSelections();
-        notifyDataSetChanged();
-    }
-
-    static class StudentViewHolder extends RecyclerView.ViewHolder {
+    class StudentViewHolder extends RecyclerView.ViewHolder {
         private ImageView img;
-        private TextView name;
-        private TextView faculty;
-        private TextView mssv;
-        private CheckBox selectedStudent;
+        private TextView mssv, name, faculty, major;
+        private LinearLayout selectedStudent;
 
         public StudentViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -86,7 +69,9 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
             name = itemView.findViewById(R.id.txtName);
             faculty = itemView.findViewById(R.id.txtFaculty);
             mssv = itemView.findViewById(R.id.txtMSSV);
+            major = itemView.findViewById(R.id.txtMajor);
             selectedStudent = itemView.findViewById(R.id.selectedStudent);
         }
     }
 }
+
