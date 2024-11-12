@@ -1,21 +1,34 @@
 package com.example.giuaky;
 
-public class Student {
+import java.io.Serializable;
+
+public class Student implements Serializable{
 
     private String studentID;
     private String name;
     private String faculty;
     private String major;
-
-    public Student(String studentID, String name, String faculty, String major) {
+    private String phonenumber;
+    private int age;
+    private String email;
+    public Student(String studentID, String name, String faculty, String major, int age, String phonenumber, String email) {
         this.studentID = studentID;
         this.name = name;
         this.faculty = faculty;
         this.major = major;
+        this.age=age;
+        this.phonenumber = phonenumber;
+        this.email=email;
+    }
+
+    public Student(String mssv, String name, String faculty, int i, String faculty1, String major, String email, String phonenumber) {
     }
 
     public String getStudentID() {
         return studentID;
+    }
+    public int getAge() {
+        return age;
     }
 
     public void setStudentID(String studentID) {
@@ -28,6 +41,21 @@ public class Student {
 
     public void setName(String name) {
         this.name = name;
+    }
+    public void setAge(int age) {
+        this.age = age;
+    }
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPhonenumber(String phone) {
+        this.phonenumber = phone;
+    }
+    public String getEmail() {
+        return email;
+    }
+    public String getPhoneNumber() {
+        return phonenumber;
     }
 
     public String getFaculty() {

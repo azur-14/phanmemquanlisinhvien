@@ -66,10 +66,19 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            finish();
+                            // Sign in success, get the current user's UID
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            if (user != null) {
+                                String uid = user.getUid();
+                                Log.d("LoginActivity", "User ID: " + uid); // Log the UID
+
+                                // Show a Toast with the user ID
+                                Toast.makeText(LoginActivity.this, "User ID: " + uid, Toast.LENGTH_SHORT).show();
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                finish();
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Toast.makeText(LoginActivity.this, "Authentication failed.",

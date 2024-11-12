@@ -1,9 +1,9 @@
 package com.example.giuaky;
 
-import android.content.Context;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.widget.Toast;
+
+import java.util.Collections;
 import java.util.HashMap;
 
 import androidx.annotation.NonNull;
@@ -13,10 +13,13 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,46 +30,7 @@ public class DbQuery {
     public static FirebaseFirestore db = FirebaseFirestore.getInstance();
     public static List<User> userList = new ArrayList<>();
     public static List<Student> studentList = new ArrayList<>();
-
-//    public static void loadUserAccount(final MyCompleteListener myCompleteListener){
-//        userList.clear();
-//
-//        db.collection("USERS")
-//                .get()
-//                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-//                    @Override
-//                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-//                        Map<String, QueryDocumentSnapshot> docList = new ArrayMap<>();
-//
-//                        for(QueryDocumentSnapshot doc : queryDocumentSnapshots){
-//                            docList.put(doc.getId(),doc);
-//                        }
-//                        QueryDocumentSnapshot userListItem = docList.get("TOTAL_USER");
-//
-//                        int totalUser = userListItem.getLong("count").intValue();
-//
-//                        for (int i = 1; i <= totalUser; i++) {
-//                            String userId = userListItem.getString("USER" + String.valueOf(i) + "_ID");
-//                            QueryDocumentSnapshot userDoc = docList.get(userId);
-//                            String role = userDoc.getString("ROLE");
-//                            String name = userDoc.getString("NAME");
-//                            String email = userDoc.getString("EMAIL");
-//                            String phoneNumber = userDoc.getString("PHONE_NUMBER");
-//                            Long age = userDoc.getLong("AGE");
-//                            String status = userDoc.getString("STATUS");
-//                            userList.add(new User(role, name, email, phoneNumber, age.intValue(), status));
-//
-//                        }
-//                        myCompleteListener.onSuccess();
-//                    }
-//                })
-//                .addOnFailureListener(new OnFailureListener() {
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        myCompleteListener.onFailure();
-//                    }
-//                });
-//    }
+    public static List<Certificate> certificateList = new ArrayList<>();
 
     public static void loadUserAccount(final MyCompleteListener myCompleteListener) {
         userList.clear();
@@ -128,34 +92,44 @@ public class DbQuery {
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
                         Map<String, QueryDocumentSnapshot> docList = new ArrayMap<>();
 
-                        // Lưu trữ các tài liệu vào docList
+                        // Store documents into docList
                         for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             docList.put(doc.getId(), doc);
                         }
 
-                        // Lấy thông tin tổng số sinh viên
-                        QueryDocumentSnapshot userListItem = docList.get("TOTAL_STUDENTS");
-                        if (userListItem != null) {
-                            long totalUser = userListItem.getLong("COUNT");
+                        // Get total number of students
+                        QueryDocumentSnapshot totalStudentsDoc = docList.get("TOTAL_STUDENTS");
+                        if (totalStudentsDoc != null) {
+                            long totalUser = totalStudentsDoc.getLong("COUNT");
 
                             for (int i = 1; i <= totalUser; i++) {
-                                String studentID = userListItem.getString("STUDENT" + i + "_ID");
-                                QueryDocumentSnapshot doc = docList.get(studentID);
+                                String studentIDKey = "STUDENT" + i + "_ID";
+                                String studentID = totalStudentsDoc.getString(studentIDKey);
+                                QueryDocumentSnapshot studentDoc = docList.get(studentID);
 
-                                if (doc != null) {
-                                    String mssv = doc.getString("STUDENT_ID");
-                                    String name = doc.getString("NAME");
-                                    String faculty = doc.getString("FACULTY");
-                                    String major = doc.getString("MAJOR");
+                                if (studentDoc != null) {
+                                    // Retrieve student details
+                                    String mssv = studentDoc.getString("STUDENT_ID");
+                                    Long age = studentDoc.getLong("AGE");
+                                    String name = studentDoc.getString("NAME");
+                                    String faculty = studentDoc.getString("FACULTY");
+                                    String major = studentDoc.getString("MAJOR");
+                                    String email = studentDoc.getString("EMAIL");
+                                    String phonenumber = studentDoc.getString("PHONENUMBER");
 
-                                    studentList.add(new Student(mssv,name,faculty,major));
+                                    // Log loaded student data
+                                    Log.d("LoadStudent", "Loaded Student: " + mssv + ", Name: " + name);
+
+                                    // Add the student to the list
+                                    studentList.add(new Student(mssv, name, faculty, major, age != null ? age.intValue() : 0, phonenumber, email));
                                 } else {
-                                    Log.w("LoadStudent", "Không tìm thấy sinh viên với ID: " + studentID);
+                                    Log.w("LoadStudent", "Student not found with ID: " + studentID);
                                 }
                             }
 
                             myCompleteListener.onSuccess();
                         } else {
+                            Log.e("LoadStudent", "TOTAL_STUDENTS document not found.");
                             myCompleteListener.onFailure();
                         }
                     }
@@ -163,22 +137,25 @@ public class DbQuery {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
+                        Log.e("LoadStudent", "Error fetching student data", e);
                         myCompleteListener.onFailure();
                     }
                 });
     }
-
     public static Task<String> getRole() {
         final TaskCompletionSource<String> taskCompletionSource = new TaskCompletionSource<>();
-
         String uid = FirebaseAuth.getInstance().getUid();
+
+        // Log the UID
         if (uid != null) {
+            Log.d("DbQuery", "User UID: " + uid); // Log the UID
+
             db.collection("USERS").document(uid)
                     .get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            // Lấy giá trị "role" và set vào taskCompletionSource
+                            // Get the value of "ROLE" and set it in taskCompletionSource
                             String role = documentSnapshot.getString("ROLE");
                             if (role != null) {
                                 taskCompletionSource.setResult(role);
@@ -196,31 +173,115 @@ public class DbQuery {
         } else {
             taskCompletionSource.setException(new Exception("User UID is null"));
         }
-
         return taskCompletionSource.getTask();
     }
-    public static void loadStudents(final MyCompleteListener myCompleteListener) {
-        userList.clear();
-        db.collection("USERS")
-                .whereEqualTo("ROLE", "student")
+
+    public static void deleteStudent(String studentID, final MyCompleteListener myCompleteListener) {
+        // Tham chiếu đến tài liệu sinh viên và tài liệu tổng số sinh viên
+        DocumentReference studentRef = db.collection("STUDENTS").document(studentID);
+        DocumentReference totalStudentsRef = db.collection("STUDENTS").document("TOTAL_STUDENTS");
+
+        totalStudentsRef.get().addOnSuccessListener(totalStudentsDoc -> {
+            if (totalStudentsDoc.exists()) {
+                long count = totalStudentsDoc.getLong("COUNT");
+                // Thực hiện giao dịch để xóa sinh viên và cập nhật số lượng
+                db.runTransaction(transaction -> {
+                    transaction.delete(studentRef); // Xóa sinh viên
+
+                    transaction.update(totalStudentsRef, "COUNT", count - 1); // Cập nhật COUNT
+
+                    // Cập nhật các trường STUDENT{i}_ID trong tài liệu TOTAL_STUDENTS
+                    for (int i = 1; i <= count; i++) {
+                        String studentKey = "STUDENT" + i + "_ID";
+                        String storedID = totalStudentsDoc.getString(studentKey);
+                        if (studentID.equals(storedID)) {
+                            transaction.update(totalStudentsRef, studentKey, FieldValue.delete());
+                            break;
+                        }
+                    }
+                    return null;
+                }).addOnSuccessListener(aVoid -> {
+                    Log.d("DbQuery", "Student deleted successfully: " + studentID);
+                    myCompleteListener.onSuccess();
+                }).addOnFailureListener(e -> {
+                    Log.e("DbQuery", "Error deleting student: " + e.getMessage());
+                    myCompleteListener.onFailure();
+                });
+            } else {
+                Log.e("DbQuery", "TOTAL_STUDENTS document not found.");
+                myCompleteListener.onFailure();
+            }
+        }).addOnFailureListener(e -> {
+            Log.e("DbQuery", "Error fetching TOTAL_STUDENTS: " + e.getMessage());
+            myCompleteListener.onFailure();
+        });
+    }
+    public static void addStudent(Student student, final MyCompleteListener myCompleteListener) {
+        if (student == null || student.getStudentID() == null || student.getStudentID().isEmpty()) {
+            Log.e("DbQuery", "Student or Student ID is null or empty");
+            myCompleteListener.onFailure();
+            return;
+        }
+
+        DocumentReference totalStudentsRef = db.collection("STUDENTS").document("TOTAL_STUDENTS");
+
+        db.runTransaction(transaction -> {
+            DocumentSnapshot totalStudentsDoc = transaction.get(totalStudentsRef);
+
+            Long currentCount = totalStudentsDoc.getLong("COUNT");
+            if (currentCount == null) {
+                currentCount = 0L;
+                transaction.set(totalStudentsRef, Collections.singletonMap("COUNT", currentCount));
+            }
+
+            // Update count and add student ID reference
+            transaction.update(totalStudentsRef, "COUNT", currentCount + 1);
+            String studentKey = "STUDENT" + (currentCount + 1) + "_ID";
+            transaction.update(totalStudentsRef, studentKey, student.getStudentID());
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Map<String, Object> studentData = new HashMap<>();
+            studentData.put("STUDENT_ID", student.getStudentID());
+            studentData.put("NAME", student.getName());
+            studentData.put("FACULTY", student.getFaculty());
+            studentData.put("MAJOR", student.getMajor());
+            studentData.put("AGE", student.getAge());
+            studentData.put("EMAIL", student.getEmail());
+            studentData.put("PHONENUMBER", student.getPhoneNumber());
+
+            db.collection("STUDENTS")
+                    .document(student.getStudentID())
+                    .set(studentData)
+                    .addOnSuccessListener(aVoid1 -> {
+                        Log.d("DbQuery", "Student added successfully: " + student.getStudentID());
+                        myCompleteListener.onSuccess();
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.e("DbQuery", "Error adding student to Firestore: " + e.getMessage(), e);
+                        myCompleteListener.onFailure();
+                    });
+        }).addOnFailureListener(e -> {
+            Log.e("DbQuery", "Transaction error (count update): " + e.getMessage(), e);
+            myCompleteListener.onFailure();
+        });
+    }
+    public static void loadCertificates(String studentID, final MyCompleteListener myCompleteListener) {
+        certificateList.clear();
+        db.collection("CERTIFICATES")
+                .whereEqualTo("STUDENT_ID", studentID)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
                     @Override
                     public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                            String role = doc.getString("ROLE");
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                             String name = doc.getString("NAME");
-                            String email = doc.getString("EMAIL");
-                            String phoneNumber = doc.getString("PHONE_NUMBER");
-                            Long age = doc.getLong("AGE");
-                            String status = doc.getString("STATUS");
-                            String studentID = doc.getString("STUDENT_ID");
-                            String faculty = doc.getString("FACULTY");
-                            String major = doc.getString("MAJOR");
+                            String issuedBy = doc.getString("ISSUED_BY");
+                            String dateIssued = doc.getString("DATE_ISSUED");
+                            double score = doc.getDouble("SCORE");
+                            String remarks = doc.getString("REMARKS");
 
-                            // Create a Student object and add it to the list
-                            Student student = new Student(role, name, email, phoneNumber, status, studentID, age != null ? age.intValue() : 0, faculty, major);
-                            userList.add(student);
+                            certificateList.add(new Certificate(name, issuedBy, dateIssued, score, remarks));
                         }
                         myCompleteListener.onSuccess();
                     }
@@ -228,57 +289,95 @@ public class DbQuery {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("LoadStudents", "Error loading student data: " + e.getMessage());
+                        Log.e("DbQuery", "Error loading certificates: " + e.getMessage());
                         myCompleteListener.onFailure();
                     }
                 });
     }
-    public static void deleteStudent(String studentID, final MyCompleteListener myCompleteListener) {
-        db.collection("USERS")
-                .whereEqualTo("STUDENT_ID", studentID)
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        doc.getReference().delete();
-                    }
-                    myCompleteListener.onSuccess();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("DeleteStudent", "Error deleting student: " + e.getMessage());
-                    myCompleteListener.onFailure();
-                });
-    }
-    public static void addStudent(Student student, final MyCompleteListener myCompleteListener) {
-        // Ensure the student object is not null and contains valid data
-        if (student == null || student.getStudentID() == null || student.getStudentID().isEmpty()) {
-            Log.e("DbQuery", "Student or Student ID is null or empty");
+    public static void addCertificate(Certificate certificate, String studentID, final MyCompleteListener myCompleteListener) {
+        if (certificate == null || studentID == null || studentID.isEmpty()) {
+            Log.e("DbQuery", "Certificate or Student ID is null or empty");
             myCompleteListener.onFailure();
             return;
         }
 
-        // Prepare the data to be stored in Firestore with uppercase keys
-        Map<String, Object> studentData = new HashMap<>();
-        studentData.put("ROLE", student.getRole());
-        studentData.put("NAME", student.getName());
-        studentData.put("EMAIL", student.getEmail());
-        studentData.put("PHONE_NUMBER", student.getPhoneNumber());
-        studentData.put("STATUS", student.getStatus());
-        studentData.put("STUDENT_ID", student.getStudentID());
-        studentData.put("AGE", student.getAge());
-        studentData.put("FACULTY", student.getFaculty()); // Add this if needed
-        studentData.put("MAJOR", student.getMajor());   // Add this if needed
+        DocumentReference totalCertificatesRef = db.collection("CERTIFICATES").document("TOTAL_CERTIFICATES");
 
-        // Add the student document to Firestore
-        db.collection("USERS")
-                .document(student.getStudentID()) // Use STUDENT_ID as the document ID
-                .set(studentData)
+        db.runTransaction(transaction -> {
+            DocumentSnapshot totalCertificatesDoc = transaction.get(totalCertificatesRef);
+            Long currentCount = totalCertificatesDoc.getLong("COUNT");
+            if (currentCount == null) {
+                currentCount = 0L;
+                transaction.set(totalCertificatesRef, Collections.singletonMap("COUNT", currentCount));
+            }
+
+            // Update count and add certificate
+            transaction.update(totalCertificatesRef, "COUNT", currentCount + 1);
+            Map<String, Object> certificateData = new HashMap<>();
+            certificateData.put("NAME", certificate.getName());
+            certificateData.put("ISSUED_BY", certificate.getIssuedBy());
+            certificateData.put("DATE_ISSUED", certificate.getDateIssued());
+            certificateData.put("SCORE", certificate.getScore());
+            certificateData.put("REMARKS", certificate.getRemarks());
+            certificateData.put("STUDENT_ID", studentID);
+            transaction.set(db.collection("CERTIFICATES").document(), certificateData);
+
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d("DbQuery", "Certificate added successfully.");
+            myCompleteListener.onSuccess();
+        }).addOnFailureListener(e -> {
+            Log.e("DbQuery", "Error adding certificate: " + e.getMessage());
+            myCompleteListener.onFailure();
+        });
+    }
+
+    // Update an existing certificate
+    public static void updateCertificate(String certificateID, Certificate updatedCertificate, final MyCompleteListener myCompleteListener) {
+        if (updatedCertificate == null || certificateID == null || certificateID.isEmpty()) {
+            Log.e("DbQuery", "Updated certificate or Certificate ID is null or empty");
+            myCompleteListener.onFailure();
+            return;
+        }
+
+        Map<String, Object> certificateData = new HashMap<>();
+        certificateData.put("NAME", updatedCertificate.getName());
+        certificateData.put("ISSUED_BY", updatedCertificate.getIssuedBy());
+        certificateData.put("DATE_ISSUED", updatedCertificate.getDateIssued());
+        certificateData.put("SCORE", updatedCertificate.getScore());
+        certificateData.put("REMARKS", updatedCertificate.getRemarks());
+
+        db.collection("CERTIFICATES").document(certificateID)
+                .set(certificateData)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("DbQuery", "Student added successfully: " + student.getStudentID());
+                    Log.d("DbQuery", "Certificate updated successfully: " + certificateID);
                     myCompleteListener.onSuccess();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("DbQuery", "Error adding student: " + e.getMessage());
+                    Log.e("DbQuery", "Error updating certificate: " + e.getMessage());
                     myCompleteListener.onFailure();
                 });
+    }
+
+    // Delete a certificate and update count
+    public static void deleteCertificate(String certificateID, final MyCompleteListener myCompleteListener) {
+        DocumentReference totalCertificatesRef = db.collection("CERTIFICATES").document("TOTAL_CERTIFICATES");
+
+        db.runTransaction(transaction -> {
+            DocumentSnapshot totalCertificatesDoc = transaction.get(totalCertificatesRef);
+            Long currentCount = totalCertificatesDoc.getLong("COUNT");
+            if (currentCount != null && currentCount > 0) {
+                transaction.update(totalCertificatesRef, "COUNT", currentCount - 1);
+            }
+
+            transaction.delete(db.collection("CERTIFICATES").document(certificateID));
+            return null;
+        }).addOnSuccessListener(aVoid -> {
+            Log.d("DbQuery", "Certificate deleted successfully: " + certificateID);
+            myCompleteListener.onSuccess();
+        }).addOnFailureListener(e -> {
+            Log.e("DbQuery", "Error deleting certificate: " + e.getMessage());
+            myCompleteListener.onFailure();
+        });
     }
 }

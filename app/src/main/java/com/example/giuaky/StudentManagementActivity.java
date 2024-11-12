@@ -1,4 +1,10 @@
 package com.example.giuaky;
+import android.content.DialogInterface;
+import android.os.Bundle; // For Bundle
+import android.util.Log;
+import android.widget.Toast; // For Toast messages
+import androidx.appcompat.app.AlertDialog; // For AlertDialog
+import androidx.appcompat.app.AppCompatActivity; // For AppCompatActivity
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +20,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.content.DialogInterface;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -22,6 +29,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,6 +48,7 @@ public class StudentManagementActivity extends AppCompatActivity {
     private Spinner sortSpinner;
     private Button deleteButton;
     private Button addButton;
+    private Button viewButton;
 
     private ActivityResultLauncher<Intent> addStudentLauncher;
 
@@ -108,7 +119,7 @@ public class StudentManagementActivity extends AppCompatActivity {
             Intent intent = new Intent(StudentManagementActivity.this, AddStudentActivity.class);
             addStudentLauncher.launch(intent); // Launch activity to add new student
         });
-
+        viewButton.setOnClickListener(v -> viewSelectedStudents());
         // Setup Spinner for sorting options
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.sort_options, android.R.layout.simple_spinner_item);
@@ -146,17 +157,32 @@ public class StudentManagementActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
+    // Method to view selected students
+    private void viewSelectedStudents() {
+        List<Student> selectedStudents = studentAdapter.getSelectedStudents();
+
+        if (selectedStudents.isEmpty()) {
+            Toast.makeText(this, "No students selected for viewing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Start a new activity to display the details of selected students
+        Intent intent = new Intent(this, StudentDetailActivity.class);
+        intent.putExtra("SELECTED_STUDENTS", new ArrayList<>(selectedStudents)); // Pass the selected students
+        startActivity(intent);
+    }
 
     private void loadStudents() {
-        DbQuery.loadStudents(new MyCompleteListener() {
+        DbQuery.loadStudent(new MyCompleteListener() {
             @Override
             public void onSuccess() {
-                // Assuming userList now contains the loaded student data
+                // Clear the existing student list
                 students.clear();
-                students.addAll(DbQuery.userList.stream()
-                        .filter(user -> user instanceof Student)
-                        .map(user -> (Student) user)
-                        .collect(Collectors.toList()));
+
+                // Assuming `DbQuery.studentList` directly contains Student objects
+                students.addAll(DbQuery.studentList); // Directly add all students
+
+                // Update the RecyclerView with the new student list
                 studentAdapter.updateStudentList(students);
             }
 
@@ -215,27 +241,33 @@ public class StudentManagementActivity extends AppCompatActivity {
             return;
         }
 
-        // Loop through selected students and delete from Firestore
+        final int[] deletionCount = {0};
+        final int totalStudentsToDelete = selectedStudents.size();
+
         for (Student student : selectedStudents) {
             DbQuery.deleteStudent(student.getStudentID(), new MyCompleteListener() {
                 @Override
                 public void onSuccess() {
-                    // Remove from local list after successful deletion
-                    students.remove(student);
-                    studentAdapter.updateStudentList(students);
-                    Toast.makeText(StudentManagementActivity.this, "Selected students deleted from Firestore.", Toast.LENGTH_SHORT).show();
+                    deletionCount[0]++;
+                    Log.d("DeleteStudent", "Deleted student: " + student.getName());
+
+                    if (deletionCount[0] == totalStudentsToDelete) {
+                        students.removeAll(selectedStudents);
+                        studentAdapter.updateStudentList(students);
+                        studentAdapter.clearSelections();
+                        Toast.makeText(StudentManagementActivity.this, "Selected students deleted from Firestore.", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
                 @Override
                 public void onFailure() {
+                    Log.e("DeleteStudent", "Failed to delete student: " + student.getStudentID());
                     Toast.makeText(StudentManagementActivity.this, "Failed to delete student: " + student.getName(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
-
-        // Clear selections in the adapter
-        studentAdapter.clearSelections();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

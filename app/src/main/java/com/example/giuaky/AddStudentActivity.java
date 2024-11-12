@@ -95,7 +95,7 @@ public class AddStudentActivity extends AppCompatActivity {
         }
 
         // Create a new Student object
-        Student newStudent = new Student("student", name, email, phone, "normal", studentId, age, faculty, major);
+        Student newStudent = new Student(studentId, name, faculty, major, age, phone, email);
 
         // Send data back to the main activity
         Intent resultIntent = new Intent();
