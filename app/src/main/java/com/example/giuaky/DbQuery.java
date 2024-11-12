@@ -25,6 +25,7 @@ import java.util.Map;
 public class DbQuery {
     public static FirebaseFirestore db = FirebaseFirestore.getInstance();
     public static List<User> userList = new ArrayList<>();
+    public static List<Student> studentList = new ArrayList<>();
 
 //    public static void loadUserAccount(final MyCompleteListener myCompleteListener){
 //        userList.clear();
@@ -103,10 +104,8 @@ public class DbQuery {
                                 }
                             }
 
-                            Log.d("LoadUserAccount", "Đã thêm " + userList.size() + " người dùng vào danh sách.");
                             myCompleteListener.onSuccess();
                         } else {
-                            Log.w("LoadUserAccount", "Không tìm thấy tài liệu TOTAL_USER.");
                             myCompleteListener.onFailure();
                         }
                     }
@@ -114,7 +113,55 @@ public class DbQuery {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.e("LoadUserAccount", "Lỗi khi tải dữ liệu người dùng: " + e.getMessage());
+                        myCompleteListener.onFailure();
+                    }
+                });
+    }
+
+    public static void loadStudent(final MyCompleteListener myCompleteListener) {
+        studentList.clear();
+        db.collection("STUDENTS")
+                .get()
+                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+                    @Override
+                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
+                        Map<String, QueryDocumentSnapshot> docList = new ArrayMap<>();
+
+                        // Lưu trữ các tài liệu vào docList
+                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                            docList.put(doc.getId(), doc);
+                        }
+
+                        // Lấy thông tin tổng số sinh viên
+                        QueryDocumentSnapshot userListItem = docList.get("TOTAL_STUDENTS");
+                        if (userListItem != null) {
+                            long totalUser = userListItem.getLong("COUNT");
+
+                            for (int i = 1; i <= totalUser; i++) {
+                                String studentID = userListItem.getString("STUDENT" + i + "_ID");
+                                QueryDocumentSnapshot doc = docList.get(studentID);
+
+                                if (doc != null) {
+                                    String mssv = doc.getString("STUDENT_ID");
+                                    String name = doc.getString("NAME");
+                                    String faculty = doc.getString("FACULTY");
+                                    String major = doc.getString("MAJOR");
+
+                                    studentList.add(new Student(mssv,name,faculty,major));
+                                } else {
+                                    Log.w("LoadStudent", "Không tìm thấy sinh viên với ID: " + studentID);
+                                }
+                            }
+
+                            myCompleteListener.onSuccess();
+                        } else {
+                            myCompleteListener.onFailure();
+                        }
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
                         myCompleteListener.onFailure();
                     }
                 });

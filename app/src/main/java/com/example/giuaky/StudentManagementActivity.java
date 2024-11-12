@@ -1,5 +1,8 @@
 package com.example.giuaky;
 
+import static com.example.giuaky.DbQuery.studentList;
+import static com.example.giuaky.DbQuery.userList;
+
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,6 +24,7 @@ import java.util.List;
 public class StudentManagementActivity extends AppCompatActivity {
     private RecyclerView rcvStudent;
     private Toolbar toolbar;
+    private StudentAdapter studentAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +37,24 @@ public class StudentManagementActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        List<Student> students = new ArrayList<>();
-        students.add(new Student("student","Lê Ngọc Mạnh Hùng","lengocmanhhung@student.tdtu.edu.vn","0987654321","normal","SV0001",23, "Công nghệ thông tin","Kĩ thuật phần mềm"));
-        students.add(new Student("student","Trần Gia Mẫn","trangiaman@student.tdtu.edu.vn","0984425421","normal","SV0002",23, "Công nghệ thông tin","Kĩ thuật phần mềm"));
 
         rcvStudent = findViewById(R.id.rcvStudent);
-        StudentAdapter adapter = new StudentAdapter(students);
-        rcvStudent.setAdapter(adapter);
+
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         rcvStudent.setLayoutManager(layoutManager);
+
+        DbQuery.loadStudent(new MyCompleteListener(){
+            @Override
+            public void onSuccess() {
+                studentAdapter = new StudentAdapter(studentList);
+                rcvStudent.setAdapter(studentAdapter);
+            }
+
+            @Override
+            public void onFailure() {
+                Toast.makeText(StudentManagementActivity.this,"Đã xảy ra lỗi khi load dữ liệu người đùng ! Vui lòng thử lại sau",Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override

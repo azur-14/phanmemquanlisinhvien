@@ -37,7 +37,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         TextView name, email, role;
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
-
             name = itemView.findViewById(R.id.txtName);
             email = itemView.findViewById(R.id.txtEmail);
             role = itemView.findViewById(R.id.txtRole);

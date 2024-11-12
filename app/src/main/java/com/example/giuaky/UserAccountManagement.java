@@ -62,7 +62,7 @@ public class UserAccountManagement extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if(id == R.id.Add){
-            Intent intent = new Intent(UserAccountManagement.this, AddNewUserAccountActivity.class);
+            Intent intent = new Intent(UserAccountManagement.this, AddNewUserActivity.class);
             startActivity(intent);
         }
         if (id == android.R.id.home) {

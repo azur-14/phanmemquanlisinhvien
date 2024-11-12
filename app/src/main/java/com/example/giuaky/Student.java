@@ -1,19 +1,18 @@
 package com.example.giuaky;
 
-public class Student extends User {
+public class Student {
 
     private String studentID;
+    private String name;
     private String faculty;
     private String major;
 
-    public Student(String role, String name, String email, String phoneNumber, String status ,String studentID, int age,String faculty, String major) {
-        super(role, name, email, phoneNumber, age, status);
+    public Student(String studentID, String name, String faculty, String major) {
         this.studentID = studentID;
+        this.name = name;
         this.faculty = faculty;
         this.major = major;
     }
-
-
 
     public String getStudentID() {
         return studentID;
@@ -21,6 +20,14 @@ public class Student extends User {
 
     public void setStudentID(String studentID) {
         this.studentID = studentID;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getFaculty() {

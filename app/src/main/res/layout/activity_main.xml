@@ -18,6 +18,7 @@
         android:id="@+id/btnUserAccountManagement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:text="Quản lý tài khoản người dùng"
         android:layout_marginTop="16dp"/>
 
@@ -25,6 +26,7 @@
         android:id="@+id/btnStudentManagement"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:text="Quản lý học sinh"
         android:layout_marginTop="16dp"/>
 
@@ -42,5 +44,4 @@
         android:text="Log out"
         android:backgroundTint="#00BCD4"
         android:layout_marginTop="16dp"/>
-
 </LinearLayout>

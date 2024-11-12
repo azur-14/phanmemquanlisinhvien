@@ -24,7 +24,6 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
     }
 
     @NonNull
-
     @Override
     public StudentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.layout_student, parent, false);
@@ -61,10 +60,7 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
 
     class StudentViewHolder extends RecyclerView.ViewHolder {
         private ImageView img;
-        private TextView name;
-        private TextView faculty;
-        private TextView mssv;
-        private TextView major;
+        private TextView mssv, name, faculty, major;
         private LinearLayout selectedStudent;
 
         public StudentViewHolder(@NonNull View itemView) {
