@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "628675296470",
-    "project_id": "usermanagement-a4685",
-    "storage_bucket": "usermanagement-a4685.firebasestorage.app"
+    "project_number": "443021561710",
+    "project_id": "student-management-bd1fc",
+    "storage_bucket": "student-management-bd1fc.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:628675296470:android:b59e05a2c73e492d5bdd77",
+        "mobilesdk_app_id": "1:443021561710:android:439a13f2a6c9ac30973b7f",
         "android_client_info": {
-          "package_name": "com.example.giuaky"
+          "package_name": "com.example.studentmanagement"
         }
       },
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyA2OjguGyLlTGF9tvUBJtBO4is1nWyBbIg"
+          "current_key": "AIzaSyB1W_DII8m4NQHpcUdfwBkYDTvCGLspf1I"
         }
       ],
       "services": {

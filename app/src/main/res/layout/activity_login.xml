@@ -1,40 +1,78 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp">
+    android:background="#242526"
+    tools:context=".LoginActivity">
 
     <TextView
+        android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:textSize="24sp"
-        android:layout_gravity="center"
-        android:paddingBottom="24dp"/>
+        android:layout_marginTop="28dp"
+        android:drawableTop="@drawable/iconlogin_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="10dp"
+        android:text="LOGIN"
+        android:textColor="#FFFFFF"
+        android:textSize="45sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/usernameInput"
+        android:id="@+id/et_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
-        android:inputType="text"
-        android:padding="10dp"/>
+        android:layout_marginHorizontal="20dp"
+        android:background="@drawable/et_border"
+        android:drawableLeft="@drawable/mail_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="10dp"
+        android:hint="@string/hint1"
+        android:padding="12dp"
+        android:textColor="#dce1eb"
+        android:textColorHint="#677483"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_title"
+        app:layout_constraintVertical_bias="0.12"
+        tools:layout_editor_absoluteX="20dp" />
 
     <EditText
-        android:id="@+id/passwordInput"
+        android:id="@+id/et_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/et_border"
+        android:drawableLeft="@drawable/password_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="10dp"
+        android:hint="@string/hint2"
         android:inputType="textPassword"
-        android:padding="10dp"
-        android:layout_marginTop="16dp"/>
+        android:padding="12dp"
+        android:textColor="#dce1eb"
+        android:textColorHint="#677483"
+        android:textStyle="italic"
+        app:layout_constraintStart_toStartOf="@id/et_email"
+        app:layout_constraintTop_toBottomOf="@id/et_email" />
 
     <Button
-        android:id="@+id/loginButton"
+        android:id="@+id/btn_login"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="48dp"
+        android:backgroundTint="#FFC107"
         android:text="Login"
-        android:layout_marginTop="24dp"/>
+        android:textAllCaps="true"
+        android:textColor="#0B0A0A"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:cornerRadius="23dp"
+        app:layout_constraintEnd_toEndOf="@id/et_password"
+        app:layout_constraintStart_toStartOf="@id/et_password"
+        app:layout_constraintTop_toBottomOf="@id/et_password" />
 
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
