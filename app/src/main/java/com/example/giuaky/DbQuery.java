@@ -19,11 +19,11 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 
 public class DbQuery {
@@ -105,6 +105,12 @@ public class DbQuery {
                             for (int i = 1; i <= totalUser; i++) {
                                 String studentIDKey = "STUDENT" + i + "_ID";
                                 String studentID = totalStudentsDoc.getString(studentIDKey);
+
+                                if (studentID == null) {
+                                    Log.w("LoadStudent", "Student ID key missing for index: " + i);
+                                    continue; // Skip this iteration if the ID is missing
+                                }
+
                                 QueryDocumentSnapshot studentDoc = docList.get(studentID);
 
                                 if (studentDoc != null) {
@@ -119,7 +125,8 @@ public class DbQuery {
 
                                     // Log loaded student data
                                     Log.d("LoadStudent", "Loaded Student: " + mssv + ", Name: " + name);
-
+                                    Log.d("LoadStudent", "Total Students Count: " + totalUser);
+                                    Log.d("LoadStudent", "Current Loaded Students: " + studentList.size());
                                     // Add the student to the list
                                     studentList.add(new Student(mssv, name, faculty, major, age != null ? age.intValue() : 0, phonenumber, email));
                                 } else {
@@ -140,6 +147,53 @@ public class DbQuery {
                         Log.e("LoadStudent", "Error fetching student data", e);
                         myCompleteListener.onFailure();
                     }
+                });
+    }
+    public static void updateStudent(Student student, final MyCompleteListener myCompleteListener) {
+        if (student == null || student.getStudentID() == null || student.getStudentID().isEmpty()) {
+            Log.e("DbQuery", "Student or Student ID is null or empty");
+            myCompleteListener.onFailure();
+            return;
+        }
+
+        // Tìm tài liệu sinh viên theo trường STUDENT_ID
+        db.collection("STUDENTS")
+                .whereEqualTo("STUDENT_ID", student.getStudentID())
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && !task.getResult().isEmpty()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            // Tài liệu tồn tại, thực hiện cập nhật
+                            Map<String, Object> studentData = new HashMap<>();
+                            studentData.put("NAME", student.getName());
+                            studentData.put("FACULTY", student.getFaculty());
+                            studentData.put("MAJOR", student.getMajor());
+                            studentData.put("AGE", student.getAge());
+                            studentData.put("EMAIL", student.getEmail());
+                            studentData.put("PHONENUMBER", student.getPhoneNumber());
+
+                            // Cập nhật tài liệu
+                            db.collection("STUDENTS")
+                                    .document(document.getId()) // Sử dụng ID tài liệu tìm thấy
+                                    .update(studentData)
+                                    .addOnSuccessListener(aVoid -> {
+                                        Log.d("DbQuery", "Student updated successfully: " + student.getStudentID());
+                                        myCompleteListener.onSuccess();
+                                    })
+                                    .addOnFailureListener(e -> {
+                                        Log.e("DbQuery", "Error updating student: " + e.getMessage());
+                                        myCompleteListener.onFailure();
+                                    });
+                            return; // Thoát khỏi vòng lặp sau khi cập nhật
+                        }
+                    } else {
+                        Log.e("DbQuery", "Student document not found for STUDENT_ID: " + student.getStudentID());
+                        myCompleteListener.onFailure();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DbQuery", "Error fetching student document: " + e.getMessage());
+                    myCompleteListener.onFailure();
                 });
     }
     public static Task<String> getRole() {
@@ -267,14 +321,21 @@ public class DbQuery {
         });
     }
     public static void addCertificate(Certificate certificate, final MyCompleteListener myCompleteListener) {
-        if (certificate == null || certificate.getCertificateID() == null || certificate.getCertificateID().isEmpty()) {
-            Log.e("DbQuery", "Certificate or Certificate ID is null or empty");
+        if (certificate == null) {
+            Log.e("DbQuery", "Certificate is null");
             myCompleteListener.onFailure();
             return;
         }
 
-        // Add certificate data to Firestore
+        // Generate a unique ID for the new certificate if not provided
+        if (certificate.getCertificateID() == null || certificate.getCertificateID().isEmpty()) {
+            String uniqueId = UUID.randomUUID().toString();
+            certificate.setCertificateID(uniqueId);
+        }
+
+        // Prepare certificate data for Firestore
         Map<String, Object> certificateData = new HashMap<>();
+        certificateData.put("CERTIFICATE_ID", certificate.getCertificateID());
         certificateData.put("STUDENT_ID", certificate.getStudentID());
         certificateData.put("NAME", certificate.getName());
         certificateData.put("ISSUED_BY", certificate.getIssuedBy());
@@ -282,6 +343,7 @@ public class DbQuery {
         certificateData.put("SCORE", certificate.getScore());
         certificateData.put("REMARKS", certificate.getRemarks());
 
+        // Add certificate data to Firestore
         db.collection("CERTIFICATION")
                 .document(certificate.getCertificateID())
                 .set(certificateData)
@@ -297,11 +359,19 @@ public class DbQuery {
     public static void loadCertificates(final String studentID, final MyCompleteListener myCompleteListener) {
         certificateList.clear();  // Clear the current list of certificates
 
+        Log.d("DbQuery", "Loading certificates for student ID: " + studentID);
+
         // Fetch certificates for the specific student from Firestore
         db.collection("CERTIFICATION")
                 .whereEqualTo("STUDENT_ID", studentID)
                 .get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
+                    if (queryDocumentSnapshots.isEmpty()) {
+                        Log.d("DbQuery", "No certificates found for student ID: " + studentID);
+                        myCompleteListener.onSuccess(); // Call onSuccess even if no certificates found
+                        return;
+                    }
+
                     for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
                         String certificateID = doc.getId();
                         String name = doc.getString("NAME");
@@ -312,7 +382,10 @@ public class DbQuery {
 
                         Log.d("DbQuery", "Loaded certificate: " + name + ", Issued by: " + issuedBy);
 
-                        certificateList.add(new Certificate(certificateID, studentID, name, issuedBy, dateIssued, score, remarks));
+                        // Ensure that the data is not null before adding
+                        if (name != null && issuedBy != null && dateIssued != null) {
+                            certificateList.add(new Certificate(certificateID, studentID, name, issuedBy, dateIssued, score, remarks));
+                        }
                     }
 
                     Log.d("DbQuery", "Total certificates loaded: " + certificateList.size());
@@ -325,6 +398,12 @@ public class DbQuery {
     }
 
     public static void deleteCertificate(String certificateID, final MyCompleteListener myCompleteListener) {
+        if (certificateID == null || certificateID.isEmpty()) {
+            Log.e("DbQuery", "Certificate ID is null or empty");
+            myCompleteListener.onFailure();
+            return;
+        }
+
         db.collection("CERTIFICATION")
                 .document(certificateID)
                 .delete()
@@ -337,5 +416,32 @@ public class DbQuery {
                     myCompleteListener.onFailure();
                 });
     }
+    public static void updateCertificate(Certificate certificate, final MyCompleteListener myCompleteListener) {
+        if (certificate == null || certificate.getCertificateID() == null || certificate.getCertificateID().isEmpty()) {
+            Log.e("DbQuery", "Certificate or Certificate ID is null or empty");
+            myCompleteListener.onFailure();
+            return;
+        }
 
+        // Prepare the updated certificate data (excluding CERTIFICATE_ID and STUDENT_ID)
+        Map<String, Object> certificateData = new HashMap<>();
+        certificateData.put("NAME", certificate.getName());
+        certificateData.put("ISSUED_BY", certificate.getIssuedBy());
+        certificateData.put("DATE_ISSUED", certificate.getDateIssued());
+        certificateData.put("SCORE", certificate.getScore());
+        certificateData.put("REMARKS", certificate.getRemarks());
+
+        // Update the certificate data in Firestore
+        db.collection("CERTIFICATION")
+                .document(certificate.getCertificateID()) // Ensure this is the correct document ID
+                .update(certificateData) // Only update specified fields
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DbQuery", "Certificate updated successfully: " + certificate.getCertificateID());
+                    myCompleteListener.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DbQuery", "Error updating certificate: " + e.getMessage(), e);
+                    myCompleteListener.onFailure();
+                });
+    }
 }

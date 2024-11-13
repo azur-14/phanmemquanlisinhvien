@@ -47,11 +47,11 @@
 
             <TextView
                 android:id="@+id/student_email"
-                android:textColor="#49454F"
-                android:textSize="16sp"
-                android:layout_marginStart="16dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_width="wrap_content" />
+                android:layout_marginStart="16dp"
+                android:textColor="#49454F"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/student_phone"
@@ -84,7 +84,14 @@
                 android:layout_marginStart="16dp"
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content" />
-
+            <!-- Edit Button -->
+            <Button
+                android:id="@+id/edithocsinhbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edit"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="16dp" />
             <TextView
                 android:textColor="#1D1B20"
                 android:textSize="24sp"
@@ -99,7 +106,6 @@
                 android:id="@+id/recycler_view_certificates"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:nestedScrollingEnabled="false"
                 android:layout_marginBottom="24dp" />
         </LinearLayout>
     </ScrollView>
@@ -113,10 +119,10 @@
         android:padding="16dp">
 
         <Button
-            android:id="@+id/button_view_details"
+            android:id="@+id/button_update"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View Details"
+            android:text="Update"
             android:layout_marginEnd="8dp" />
 
         <Button

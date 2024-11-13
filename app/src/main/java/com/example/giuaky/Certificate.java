@@ -1,9 +1,11 @@
 package com.example.giuaky;
 
+import android.widget.TextView;
+
 import java.io.Serializable;
 
 public class Certificate implements Serializable {
-    private String certificateID;   // Unique identifier for the certificate
+    private static String certificateID;   // Unique identifier for the certificate
     private String studentID;       // ID of the student to whom the certificate belongs
     private String name;            // Name of the certificate
     private String issuedBy;        // Organization that issued the certificate
@@ -19,11 +21,11 @@ public class Certificate implements Serializable {
         this.issuedBy = issuedBy;
         this.dateIssued = dateIssued;
         this.score = score;
-        this.remarks = remarks;
+        this.remarks = remarks != null ? remarks : "";
     }
 
     // Getters and Setters
-    public String getCertificateID() {
+    public static String getCertificateID() {
         return certificateID;
     }
 

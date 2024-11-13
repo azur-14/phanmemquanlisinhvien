@@ -1,6 +1,7 @@
 package com.example.giuaky;
 
 import android.annotation.SuppressLint;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +54,9 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
 
     @Override
     public int getItemCount() {
-        return studentList.size();
+        int count = studentList.size();
+        Log.d("StudentAdapter", "Item count: " + count);
+        return count;
     }
 
     public List<Student> getSelectedStudents() {

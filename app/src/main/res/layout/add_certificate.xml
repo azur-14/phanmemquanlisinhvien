@@ -1,0 +1,38 @@
+<!-- layout/add_certificate_dialog.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Certificate Name" />
+
+    <EditText
+        android:id="@+id/editTextIssuedBy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Issued By" />
+
+    <EditText
+        android:id="@+id/editTextDateIssued"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Date Issued (e.g., 01/01/2024)" />
+
+    <EditText
+        android:id="@+id/editTextScore"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Score" />
+
+    <EditText
+        android:id="@+id/editTextRemarks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Remarks (optional)" />
+
+</LinearLayout>

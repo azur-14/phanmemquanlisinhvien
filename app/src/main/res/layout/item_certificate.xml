@@ -8,40 +8,53 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
         android:padding="8dp">
 
-        <TextView
-            android:id="@+id/certificateName"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Certificate Name"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/issuedBy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Issued By: Organization" />
+            <TextView
+                android:id="@+id/certificateName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Certificate Name"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
-        <TextView
-            android:id="@+id/dateIssued"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Date Issued: 01/01/2024" />
+            <TextView
+                android:id="@+id/issuedBy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Issued By: Organization" />
 
-        <TextView
-            android:id="@+id/score"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Score: 95" />
+            <TextView
+                android:id="@+id/dateIssued"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Date Issued: 01/01/2024" />
 
-        <TextView
-            android:id="@+id/remarks"
+            <TextView
+                android:id="@+id/score"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Score: 95" />
+
+            <TextView
+                android:id="@+id/remarks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remarks: Excellent performance!" />
+        </LinearLayout>
+
+        <!-- CheckBox for selecting each certificate -->
+        <CheckBox
+            android:id="@+id/certificateCheckBox"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Remarks: Excellent performance!" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

@@ -157,6 +157,7 @@ public class StudentManagementActivity extends AppCompatActivity {
             public void onSuccess() {
                 students.clear();
                 students.addAll(DbQuery.studentList);
+                Log.d("LoadStudents", "Number of students loaded: " + students.size());
                 studentAdapter.updateStudentList(students);
             }
 
