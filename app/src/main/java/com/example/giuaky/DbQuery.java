@@ -266,118 +266,76 @@ public class DbQuery {
             myCompleteListener.onFailure();
         });
     }
-    public static void loadCertificates(String studentID, final MyCompleteListener myCompleteListener) {
-        certificateList.clear();
-        db.collection("CERTIFICATES")
-                .whereEqualTo("STUDENT_ID", studentID)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            String name = doc.getString("NAME");
-                            String issuedBy = doc.getString("ISSUED_BY");
-                            String dateIssued = doc.getString("DATE_ISSUED");
-                            double score = doc.getDouble("SCORE");
-                            String remarks = doc.getString("REMARKS");
-
-                            certificateList.add(new Certificate(name, issuedBy, dateIssued, score, remarks));
-                        }
-                        myCompleteListener.onSuccess();
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.e("DbQuery", "Error loading certificates: " + e.getMessage());
-                        myCompleteListener.onFailure();
-                    }
-                });
-    }
-    public static void addCertificate(Certificate certificate, String studentID, final MyCompleteListener myCompleteListener) {
-        if (certificate == null || studentID == null || studentID.isEmpty()) {
-            Log.e("DbQuery", "Certificate or Student ID is null or empty");
+    public static void addCertificate(Certificate certificate, final MyCompleteListener myCompleteListener) {
+        if (certificate == null || certificate.getCertificateID() == null || certificate.getCertificateID().isEmpty()) {
+            Log.e("DbQuery", "Certificate or Certificate ID is null or empty");
             myCompleteListener.onFailure();
             return;
         }
 
-        DocumentReference totalCertificatesRef = db.collection("CERTIFICATES").document("TOTAL_CERTIFICATES");
-
-        db.runTransaction(transaction -> {
-            DocumentSnapshot totalCertificatesDoc = transaction.get(totalCertificatesRef);
-            Long currentCount = totalCertificatesDoc.getLong("COUNT");
-            if (currentCount == null) {
-                currentCount = 0L;
-                transaction.set(totalCertificatesRef, Collections.singletonMap("COUNT", currentCount));
-            }
-
-            // Update count and add certificate
-            transaction.update(totalCertificatesRef, "COUNT", currentCount + 1);
-            Map<String, Object> certificateData = new HashMap<>();
-            certificateData.put("NAME", certificate.getName());
-            certificateData.put("ISSUED_BY", certificate.getIssuedBy());
-            certificateData.put("DATE_ISSUED", certificate.getDateIssued());
-            certificateData.put("SCORE", certificate.getScore());
-            certificateData.put("REMARKS", certificate.getRemarks());
-            certificateData.put("STUDENT_ID", studentID);
-            transaction.set(db.collection("CERTIFICATES").document(), certificateData);
-
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            Log.d("DbQuery", "Certificate added successfully.");
-            myCompleteListener.onSuccess();
-        }).addOnFailureListener(e -> {
-            Log.e("DbQuery", "Error adding certificate: " + e.getMessage());
-            myCompleteListener.onFailure();
-        });
-    }
-
-    // Update an existing certificate
-    public static void updateCertificate(String certificateID, Certificate updatedCertificate, final MyCompleteListener myCompleteListener) {
-        if (updatedCertificate == null || certificateID == null || certificateID.isEmpty()) {
-            Log.e("DbQuery", "Updated certificate or Certificate ID is null or empty");
-            myCompleteListener.onFailure();
-            return;
-        }
-
+        // Add certificate data to Firestore
         Map<String, Object> certificateData = new HashMap<>();
-        certificateData.put("NAME", updatedCertificate.getName());
-        certificateData.put("ISSUED_BY", updatedCertificate.getIssuedBy());
-        certificateData.put("DATE_ISSUED", updatedCertificate.getDateIssued());
-        certificateData.put("SCORE", updatedCertificate.getScore());
-        certificateData.put("REMARKS", updatedCertificate.getRemarks());
+        certificateData.put("STUDENT_ID", certificate.getStudentID());
+        certificateData.put("NAME", certificate.getName());
+        certificateData.put("ISSUED_BY", certificate.getIssuedBy());
+        certificateData.put("DATE_ISSUED", certificate.getDateIssued());
+        certificateData.put("SCORE", certificate.getScore());
+        certificateData.put("REMARKS", certificate.getRemarks());
 
-        db.collection("CERTIFICATES").document(certificateID)
+        db.collection("CERTIFICATION")
+                .document(certificate.getCertificateID())
                 .set(certificateData)
                 .addOnSuccessListener(aVoid -> {
-                    Log.d("DbQuery", "Certificate updated successfully: " + certificateID);
+                    Log.d("DbQuery", "Certificate added successfully: " + certificate.getCertificateID());
                     myCompleteListener.onSuccess();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e("DbQuery", "Error updating certificate: " + e.getMessage());
+                    Log.e("DbQuery", "Error adding certificate to Firestore: " + e.getMessage(), e);
+                    myCompleteListener.onFailure();
+                });
+    }
+    public static void loadCertificates(final String studentID, final MyCompleteListener myCompleteListener) {
+        certificateList.clear();  // Clear the current list of certificates
+
+        // Fetch certificates for the specific student from Firestore
+        db.collection("CERTIFICATION")
+                .whereEqualTo("STUDENT_ID", studentID)
+                .get()
+                .addOnSuccessListener(queryDocumentSnapshots -> {
+                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
+                        String certificateID = doc.getId();
+                        String name = doc.getString("NAME");
+                        String issuedBy = doc.getString("ISSUED_BY");
+                        String dateIssued = doc.getString("DATE_ISSUED");
+                        Double score = doc.getDouble("SCORE");
+                        String remarks = doc.getString("REMARKS");
+
+                        Log.d("DbQuery", "Loaded certificate: " + name + ", Issued by: " + issuedBy);
+
+                        certificateList.add(new Certificate(certificateID, studentID, name, issuedBy, dateIssued, score, remarks));
+                    }
+
+                    Log.d("DbQuery", "Total certificates loaded: " + certificateList.size());
+                    myCompleteListener.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DbQuery", "Error loading certificates: " + e.getMessage(), e);
                     myCompleteListener.onFailure();
                 });
     }
 
-    // Delete a certificate and update count
     public static void deleteCertificate(String certificateID, final MyCompleteListener myCompleteListener) {
-        DocumentReference totalCertificatesRef = db.collection("CERTIFICATES").document("TOTAL_CERTIFICATES");
-
-        db.runTransaction(transaction -> {
-            DocumentSnapshot totalCertificatesDoc = transaction.get(totalCertificatesRef);
-            Long currentCount = totalCertificatesDoc.getLong("COUNT");
-            if (currentCount != null && currentCount > 0) {
-                transaction.update(totalCertificatesRef, "COUNT", currentCount - 1);
-            }
-
-            transaction.delete(db.collection("CERTIFICATES").document(certificateID));
-            return null;
-        }).addOnSuccessListener(aVoid -> {
-            Log.d("DbQuery", "Certificate deleted successfully: " + certificateID);
-            myCompleteListener.onSuccess();
-        }).addOnFailureListener(e -> {
-            Log.e("DbQuery", "Error deleting certificate: " + e.getMessage());
-            myCompleteListener.onFailure();
-        });
+        db.collection("CERTIFICATION")
+                .document(certificateID)
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    Log.d("DbQuery", "Certificate deleted successfully: " + certificateID);
+                    myCompleteListener.onSuccess();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("DbQuery", "Error deleting certificate: " + e.getMessage(), e);
+                    myCompleteListener.onFailure();
+                });
     }
+
 }

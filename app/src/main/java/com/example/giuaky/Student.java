@@ -1,6 +1,7 @@
 package com.example.giuaky;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Student implements Serializable{
 
@@ -11,6 +12,7 @@ public class Student implements Serializable{
     private String phonenumber;
     private int age;
     private String email;
+    private List<Certificate> certificates;
     public Student(String studentID, String name, String faculty, String major, int age, String phonenumber, String email) {
         this.studentID = studentID;
         this.name = name;

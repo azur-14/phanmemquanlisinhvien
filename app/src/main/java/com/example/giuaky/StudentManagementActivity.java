@@ -1,15 +1,11 @@
 package com.example.giuaky;
-import android.content.DialogInterface;
-import android.os.Bundle; // For Bundle
-import android.util.Log;
-import android.widget.Toast; // For Toast messages
-import androidx.appcompat.app.AlertDialog; // For AlertDialog
-import androidx.appcompat.app.AppCompatActivity; // For AppCompatActivity
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,18 +16,15 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.content.DialogInterface;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.gms.tasks.Task;
-import com.google.android.gms.tasks.Tasks;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -61,7 +54,6 @@ public class StudentManagementActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         // Initialize student list and adapter
         students = new ArrayList<>();
@@ -72,14 +64,13 @@ public class StudentManagementActivity extends AppCompatActivity {
         rcvStudent.setAdapter(studentAdapter);
         rcvStudent.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialize search components
+        // Initialize UI components
         searchEditText = findViewById(R.id.searchEditText);
         searchButton = findViewById(R.id.searchitem);
-
-        // Initialize sort spinner and buttons
         sortSpinner = findViewById(R.id.sortbaseon);
         deleteButton = findViewById(R.id.deleteButton);
         addButton = findViewById(R.id.addButton);
+        viewButton = findViewById(R.id.viewButton);
 
         // Load students from Firestore
         loadStudents();
@@ -114,17 +105,14 @@ public class StudentManagementActivity extends AppCompatActivity {
                 }
         );
 
-        // Setup listener for addButton
-        addButton.setOnClickListener(v -> {
-            Intent intent = new Intent(StudentManagementActivity.this, AddStudentActivity.class);
-            addStudentLauncher.launch(intent); // Launch activity to add new student
-        });
+        // Setup listeners
+        addButton.setOnClickListener(v -> addNewStudent());
         viewButton.setOnClickListener(v -> viewSelectedStudents());
-        // Setup Spinner for sorting options
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.sort_options, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sortSpinner.setAdapter(adapter);
+        searchButton.setOnClickListener(v -> performSearch(searchEditText.getText().toString()));
+        deleteButton.setOnClickListener(v -> deleteSelectedStudents());
+
+        // Setup sort spinner
+        setupSortSpinner();
 
         // Add TextWatcher for search input
         searchEditText.addTextChangedListener(new TextWatcher() {
@@ -139,14 +127,14 @@ public class StudentManagementActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+    }
 
-        // Setup listener for search button
-        searchButton.setOnClickListener(v -> performSearch(searchEditText.getText().toString()));
+    private void setupSortSpinner() {
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.sort_options, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sortSpinner.setAdapter(adapter);
 
-        // Setup listener for delete button
-        deleteButton.setOnClickListener(v -> deleteSelectedStudents());
-
-        // Handle item selection in Spinner
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -157,32 +145,18 @@ public class StudentManagementActivity extends AppCompatActivity {
             public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
-    // Method to view selected students
-    private void viewSelectedStudents() {
-        List<Student> selectedStudents = studentAdapter.getSelectedStudents();
 
-        if (selectedStudents.isEmpty()) {
-            Toast.makeText(this, "No students selected for viewing.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Start a new activity to display the details of selected students
-        Intent intent = new Intent(this, StudentDetailActivity.class);
-        intent.putExtra("SELECTED_STUDENTS", new ArrayList<>(selectedStudents)); // Pass the selected students
-        startActivity(intent);
+    private void addNewStudent() {
+        Intent intent = new Intent(StudentManagementActivity.this, AddStudentActivity.class);
+        addStudentLauncher.launch(intent);
     }
 
     private void loadStudents() {
         DbQuery.loadStudent(new MyCompleteListener() {
             @Override
             public void onSuccess() {
-                // Clear the existing student list
                 students.clear();
-
-                // Assuming `DbQuery.studentList` directly contains Student objects
-                students.addAll(DbQuery.studentList); // Directly add all students
-
-                // Update the RecyclerView with the new student list
+                students.addAll(DbQuery.studentList);
                 studentAdapter.updateStudentList(students);
             }
 
@@ -249,22 +223,37 @@ public class StudentManagementActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess() {
                     deletionCount[0]++;
-                    Log.d("DeleteStudent", "Deleted student: " + student.getName());
+                    students.remove(student);
 
                     if (deletionCount[0] == totalStudentsToDelete) {
-                        students.removeAll(selectedStudents);
                         studentAdapter.updateStudentList(students);
                         studentAdapter.clearSelections();
-                        Toast.makeText(StudentManagementActivity.this, "Selected students deleted from Firestore.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(StudentManagementActivity.this, "Selected students deleted.", Toast.LENGTH_SHORT).show();
                     }
                 }
 
                 @Override
                 public void onFailure() {
-                    Log.e("DeleteStudent", "Failed to delete student: " + student.getStudentID());
                     Toast.makeText(StudentManagementActivity.this, "Failed to delete student: " + student.getName(), Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    private void viewSelectedStudents() {
+        List<Student> selectedStudents = studentAdapter.getSelectedStudents();
+
+        if (selectedStudents.size() == 1) {
+            // Proceed if exactly one student is selected
+            Intent intent = new Intent(this, StudentDetailActivity.class);
+            intent.putExtra("SELECTED_STUDENT", selectedStudents.get(0)); // Pass the single selected student
+            startActivity(intent);
+        } else if (selectedStudents.isEmpty()) {
+            // Notify the user if no student is selected
+            Toast.makeText(this, "Please select one student to view.", Toast.LENGTH_SHORT).show();
+        } else {
+            // Notify the user if more than one student is selected
+            Toast.makeText(this, "Please select only one student to view.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -287,7 +276,7 @@ public class StudentManagementActivity extends AppCompatActivity {
             return true;
         }
         if (id == android.R.id.home) {
-            finish(); // Close current activity
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

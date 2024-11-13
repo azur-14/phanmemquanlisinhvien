@@ -28,6 +28,9 @@
             android:name=".UserProfileActivity"
             android:exported="false" />
         <activity
+            android:name=".StudentDetailActivity"
+            android:exported="false" />
+        <activity
             android:name=".StudentManagementActivity"
             android:exported="false" />
         <activity

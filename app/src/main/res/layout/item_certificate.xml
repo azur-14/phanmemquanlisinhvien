@@ -1,43 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:layout_margin="8dp"
+    android:padding="16dp">
 
-    <TextView
-        android:id="@+id/certificate_name"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="#000000"
-        android:fontFamily="sans-serif-medium" />
+        android:orientation="vertical"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/certificate_issued_by"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#49454F" />
+        <TextView
+            android:id="@+id/certificateName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Certificate Name"
+            android:textSize="18sp"
+            android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/certificate_date_issued"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#49454F" />
+        <TextView
+            android:id="@+id/issuedBy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Issued By: Organization" />
 
-    <TextView
-        android:id="@+id/certificate_score"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#49454F" />
+        <TextView
+            android:id="@+id/dateIssued"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date Issued: 01/01/2024" />
 
-    <TextView
-        android:id="@+id/certificate_remarks"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="14sp"
-        android:textColor="#49454F" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Score: 95" />
+
+        <TextView
+            android:id="@+id/remarks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Remarks: Excellent performance!" />
+
+    </LinearLayout>
+</androidx.cardview.widget.CardView>

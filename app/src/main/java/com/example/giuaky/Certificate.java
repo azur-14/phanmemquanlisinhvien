@@ -3,14 +3,18 @@ package com.example.giuaky;
 import java.io.Serializable;
 
 public class Certificate implements Serializable {
-    private String name;          // Name of the certificate
-    private String issuedBy;      // Organization that issued the certificate
-    private String dateIssued;     // Date the certificate was issued
-    private double score;         // Exam score associated with the certificate
-    private String remarks;       // Additional remarks (optional)
+    private String certificateID;   // Unique identifier for the certificate
+    private String studentID;       // ID of the student to whom the certificate belongs
+    private String name;            // Name of the certificate
+    private String issuedBy;        // Organization that issued the certificate
+    private String dateIssued;      // Date the certificate was issued
+    private double score;           // Exam score associated with the certificate
+    private String remarks;         // Additional remarks (optional)
 
     // Constructor
-    public Certificate(String name, String issuedBy, String dateIssued, double score, String remarks) {
+    public Certificate(String certificateID, String studentID, String name, String issuedBy, String dateIssued, double score, String remarks) {
+        this.certificateID = certificateID;
+        this.studentID = studentID;
         this.name = name;
         this.issuedBy = issuedBy;
         this.dateIssued = dateIssued;
@@ -19,6 +23,22 @@ public class Certificate implements Serializable {
     }
 
     // Getters and Setters
+    public String getCertificateID() {
+        return certificateID;
+    }
+
+    public void setCertificateID(String certificateID) {
+        this.certificateID = certificateID;
+    }
+
+    public String getStudentID() {
+        return studentID;
+    }
+
+    public void setStudentID(String studentID) {
+        this.studentID = studentID;
+    }
+
     public String getName() {
         return name;
     }
@@ -58,5 +78,4 @@ public class Certificate implements Serializable {
     public void setRemarks(String remarks) {
         this.remarks = remarks;
     }
-
 }
