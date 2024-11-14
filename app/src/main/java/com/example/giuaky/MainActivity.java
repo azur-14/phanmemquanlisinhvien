@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -79,26 +80,39 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void getUserRole() {
-        DbQuery.getRole().addOnSuccessListener(new OnSuccessListener<String>() {
+        DbQuery.getRole().addOnSuccessListener(new OnSuccessListener<Integer>() {
             @Override
-            public void onSuccess(String role) {
+            public void onSuccess(Integer role) {
                 Log.d("MainActivity", "Role retrieved: " + role); // Log the retrieved role
-                if (role.equals("admin")) {
-                    welcomeText.setText("Welcome, Admin");
-                    btnUserAccountManagement.setVisibility(View.VISIBLE);
-                    btnStudentManagement.setVisibility(View.VISIBLE);
-                } else if (role.equals("manager")) {
-                    welcomeText.setText("Welcome, Manager");
-                    btnStudentManagement.setVisibility(View.VISIBLE);
-                } else {
-                    welcomeText.setText("Welcome, Employee");
+
+                // Hiển thị thông báo chào mừng và quản lý nút dựa trên vai trò
+                switch (role) {
+                    case 2: // Admin
+                        welcomeText.setText("Welcome, Admin");
+                        btnUserAccountManagement.setVisibility(View.VISIBLE);
+                        btnStudentManagement.setVisibility(View.VISIBLE);
+                        break;
+                    case 1: // Manager
+                        welcomeText.setText("Welcome, Manager");
+                        btnStudentManagement.setVisibility(View.VISIBLE);
+                        btnUserAccountManagement.setVisibility(View.GONE); // Ẩn nút quản lý người dùng
+                        break;
+                    case 0: // Employee
+                    default:
+                        welcomeText.setText("Welcome, Employee");
+                        btnUserAccountManagement.setVisibility(View.GONE); // Ẩn nút quản lý người dùng
+                        btnStudentManagement.setVisibility(View.GONE); // Ẩn nút quản lý sinh viên
+                        break;
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                // Ẩn tất cả nút nếu không lấy được vai trò
                 btnUserAccountManagement.setVisibility(View.GONE);
+                btnStudentManagement.setVisibility(View.GONE);
                 Log.e("UserRole", "Failed to get user role", e);
+                Toast.makeText(MainActivity.this, "Error retrieving user role", Toast.LENGTH_SHORT).show(); // Thông báo lỗi cho người dùng
             }
         });
     }
@@ -112,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startUserAccountManagementActivity() {
-        Intent intent = new Intent(MainActivity.this, UserAccountManagement.class);
+        Intent intent = new Intent(MainActivity.this, UserActivity.class);
         startActivity(intent);
     }
 
@@ -122,7 +136,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startUserProfileActivity() {
-        Intent intent = new Intent(MainActivity.this, UserProfileActivity.class);
+        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
         startActivity(intent);
     }
 }

@@ -1,33 +1,43 @@
 package com.example.giuaky;
 
-import java.io.Serializable;
-
-public class User implements Serializable {
-    private String role; // "admin", "teacher", "student"
+public class User {
+    private String id;
     private String name;
-    private String email;
-    private String phoneNumber;
     private int age;
-    private String status;
+    private String phoneNumber;
+    private boolean isLocked; // Represents user status
+    private int role; // 0: employee, 1: manager, 2: admin
+    private String avatar;
 
-    public User(String role, String name, String email, String phoneNumber, int age, String status) {
-        this.role = role;
+    public User() {
+    }
+
+    public User(String id, String name, int age, String phoneNumber, int role) {
+        this.id = id;
         this.name = name;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
         this.age = age;
-        this.status = status;
-    }
-
-
-    // Getter và Setter cho các thuộc tính
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
+        this.phoneNumber = phoneNumber;
+        this.isLocked = false; // Default is unlocked
         this.role = role;
+    }
+
+    public User(String id, String name, int age, String phoneNumber, boolean isLocked, int role) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.phoneNumber = phoneNumber;
+        this.isLocked = isLocked;
+        this.role = role;
+    }
+
+    public User(String id, String name, int age, String phoneNumber, boolean isLocked, int role, String avatar) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+        this.phoneNumber = phoneNumber;
+        this.isLocked = isLocked;
+        this.role = role;
+        this.avatar = avatar;
     }
 
     public String getName() {
@@ -38,12 +48,12 @@ public class User implements Serializable {
         this.name = name;
     }
 
-    public String getEmail() {
-        return email;
+    public int getAge() {
+        return age;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setAge(int age) {
+        this.age = age;
     }
 
     public String getPhoneNumber() {
@@ -54,21 +64,35 @@ public class User implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
-    public int getAge() {
-        return age;
+    public boolean isLocked() {
+        return isLocked;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setLocked(boolean locked) {
+        isLocked = locked;
     }
 
-
-    public String getStatus() {
-        return status;
+    public String getId() {
+        return id;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getRole() {
+        return role;
+    }
+
+    public void setRole(int role) {
+        this.role = role;
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }
-

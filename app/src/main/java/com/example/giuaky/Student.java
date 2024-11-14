@@ -12,8 +12,9 @@ public class Student implements Serializable{
     private String phonenumber;
     private int age;
     private String email;
+    private String image;
     private List<Certificate> certificates;
-    public Student(String studentID, String name, String faculty, String major, int age, String phonenumber, String email) {
+    public  Student(String studentID, String name, String faculty, String major, int age, String phonenumber, String email, String image) {
         this.studentID = studentID;
         this.name = name;
         this.faculty = faculty;
@@ -21,9 +22,10 @@ public class Student implements Serializable{
         this.age=age;
         this.phonenumber = phonenumber;
         this.email=email;
+        this.image = image;
     }
 
-    public Student(String mssv, String name, String faculty, int i, String faculty1, String major, String email, String phonenumber) {
+    public Student(String mssv, String name, String faculty, int i, String faculty1, String major, String email, String phonenumber, String image) {
     }
 
     public String getStudentID() {
@@ -70,6 +72,12 @@ public class Student implements Serializable{
 
     public String getMajor() {
         return major;
+    }
+    public void setImage(String image) {
+        this.image = image;
+    }
+    public String getImage() {
+        return image;
     }
 
     public void setMajor(String major) {

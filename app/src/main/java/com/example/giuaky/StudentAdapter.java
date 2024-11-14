@@ -1,6 +1,9 @@
 package com.example.giuaky;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,10 +34,19 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
         return new StudentViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         Student student = studentList.get(position);
-        holder.img.setImageResource(R.drawable.student_image); // Placeholder image
+
+        // Decode the Base64 image string into a Bitmap
+        if (student.getImage() != null) {
+            Bitmap bitmap = convertBase64ToBitmap(student.getImage());
+            holder.img.setImageBitmap(bitmap);
+        } else {
+            holder.img.setImageResource(R.drawable.student_image); // Placeholder image
+        }
+
         holder.name.setText("Họ và tên: " + student.getName());
         holder.faculty.setText("Khoa: " + student.getFaculty());
         holder.mssv.setText("MSSV: " + student.getStudentID());
@@ -50,6 +62,12 @@ public class StudentAdapter extends RecyclerView.Adapter<StudentAdapter.StudentV
                 selectedStudents.remove(student);
             }
         });
+    }
+
+    // Method to convert Base64 string to Bitmap
+    public Bitmap convertBase64ToBitmap(String base64) {
+        byte[] decodedBytes = Base64.decode(base64, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.length);
     }
 
     @Override

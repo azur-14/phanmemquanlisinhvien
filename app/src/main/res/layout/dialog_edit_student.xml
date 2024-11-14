@@ -6,6 +6,22 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_height="200dp"
+        android:layout_width="200dp"
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:src="@drawable/student_image" /> <!-- Placeholder image -->
+
+    <Button
+        android:id="@+id/buttonSelectImage"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Select"
+        android:layout_gravity="center"
+        android:layout_marginTop="8dp" />
+
     <EditText
         android:id="@+id/editTextName"
         android:layout_width="match_parent"

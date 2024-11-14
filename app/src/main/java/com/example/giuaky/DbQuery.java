@@ -32,56 +32,6 @@ public class DbQuery {
     public static List<Student> studentList = new ArrayList<>();
     public static List<Certificate> certificateList = new ArrayList<>();
 
-    public static void loadUserAccount(final MyCompleteListener myCompleteListener) {
-        userList.clear();
-        db.collection("USERS")
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        Map<String, QueryDocumentSnapshot> docList = new ArrayMap<>();
-
-                        // Lưu trữ các tài liệu vào docList
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            docList.put(doc.getId(), doc);
-                        }
-
-                        // Lấy thông tin tổng số người dùng
-                        QueryDocumentSnapshot userListItem = docList.get("TOTAL_USER");
-                        if (userListItem != null) {
-                            long totalUser = userListItem.getLong("count");
-
-                            for (int i = 1; i <= totalUser; i++) {
-                                String userId = userListItem.getString("USER" + i + "_ID");
-                                QueryDocumentSnapshot doc = docList.get(userId);
-
-                                if (doc != null) {
-                                    String role = doc.getString("ROLE");
-                                    String name = doc.getString("NAME");
-                                    String email = doc.getString("EMAIL");
-                                    String phoneNumber = doc.getString("PHONE_NUMBER");
-                                    Long age = doc.getLong("AGE");
-                                    String status = doc.getString("STATUS");
-
-                                    userList.add(new User(role, name, email, phoneNumber, age != null ? age.intValue() : 0, status));
-                                } else {
-                                    Log.w("LoadUserAccount", "Không tìm thấy user với ID: " + userId);
-                                }
-                            }
-
-                            myCompleteListener.onSuccess();
-                        } else {
-                            myCompleteListener.onFailure();
-                        }
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        myCompleteListener.onFailure();
-                    }
-                });
-    }
 
     public static void loadStudent(final MyCompleteListener myCompleteListener) {
         studentList.clear();
@@ -122,13 +72,14 @@ public class DbQuery {
                                     String major = studentDoc.getString("MAJOR");
                                     String email = studentDoc.getString("EMAIL");
                                     String phonenumber = studentDoc.getString("PHONENUMBER");
+                                    String image = studentDoc.getString("IMAGE");
 
                                     // Log loaded student data
                                     Log.d("LoadStudent", "Loaded Student: " + mssv + ", Name: " + name);
                                     Log.d("LoadStudent", "Total Students Count: " + totalUser);
                                     Log.d("LoadStudent", "Current Loaded Students: " + studentList.size());
                                     // Add the student to the list
-                                    studentList.add(new Student(mssv, name, faculty, major, age != null ? age.intValue() : 0, phonenumber, email));
+                                    studentList.add(new Student(mssv, name, faculty, major, age != null ? age.intValue() : 0, phonenumber, email,image));
                                 } else {
                                     Log.w("LoadStudent", "Student not found with ID: " + studentID);
                                 }
@@ -156,14 +107,12 @@ public class DbQuery {
             return;
         }
 
-        // Tìm tài liệu sinh viên theo trường STUDENT_ID
         db.collection("STUDENTS")
                 .whereEqualTo("STUDENT_ID", student.getStudentID())
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && !task.getResult().isEmpty()) {
                         for (QueryDocumentSnapshot document : task.getResult()) {
-                            // Tài liệu tồn tại, thực hiện cập nhật
                             Map<String, Object> studentData = new HashMap<>();
                             studentData.put("NAME", student.getName());
                             studentData.put("FACULTY", student.getFaculty());
@@ -171,10 +120,10 @@ public class DbQuery {
                             studentData.put("AGE", student.getAge());
                             studentData.put("EMAIL", student.getEmail());
                             studentData.put("PHONENUMBER", student.getPhoneNumber());
+                            studentData.put("IMAGE", student.getImage()); // Add the image data
 
-                            // Cập nhật tài liệu
                             db.collection("STUDENTS")
-                                    .document(document.getId()) // Sử dụng ID tài liệu tìm thấy
+                                    .document(document.getId())
                                     .update(studentData)
                                     .addOnSuccessListener(aVoid -> {
                                         Log.d("DbQuery", "Student updated successfully: " + student.getStudentID());
@@ -184,7 +133,7 @@ public class DbQuery {
                                         Log.e("DbQuery", "Error updating student: " + e.getMessage());
                                         myCompleteListener.onFailure();
                                     });
-                            return; // Thoát khỏi vòng lặp sau khi cập nhật
+                            return; // Exit after updating
                         }
                     } else {
                         Log.e("DbQuery", "Student document not found for STUDENT_ID: " + student.getStudentID());
@@ -196,8 +145,8 @@ public class DbQuery {
                     myCompleteListener.onFailure();
                 });
     }
-    public static Task<String> getRole() {
-        final TaskCompletionSource<String> taskCompletionSource = new TaskCompletionSource<>();
+    public static Task<Integer> getRole() {
+        final TaskCompletionSource<Integer> taskCompletionSource = new TaskCompletionSource<>();
         String uid = FirebaseAuth.getInstance().getUid();
 
         // Log the UID
@@ -209,12 +158,17 @@ public class DbQuery {
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            // Get the value of "ROLE" and set it in taskCompletionSource
-                            String role = documentSnapshot.getString("ROLE");
-                            if (role != null) {
-                                taskCompletionSource.setResult(role);
+                            // Kiểm tra nếu tài liệu tồn tại
+                            if (documentSnapshot.exists()) {
+                                // Lấy giá trị "role" như một Integer
+                                Long roleLong = documentSnapshot.getLong("role"); // Đảm bảo tên thuộc tính là "role"
+                                if (roleLong != null) {
+                                    taskCompletionSource.setResult(roleLong.intValue()); // Trả về giá trị int
+                                } else {
+                                    taskCompletionSource.setException(new Exception("Role not found"));
+                                }
                             } else {
-                                taskCompletionSource.setException(new Exception("Role not found"));
+                                taskCompletionSource.setException(new Exception("User document does not exist"));
                             }
                         }
                     })
@@ -303,6 +257,11 @@ public class DbQuery {
             studentData.put("AGE", student.getAge());
             studentData.put("EMAIL", student.getEmail());
             studentData.put("PHONENUMBER", student.getPhoneNumber());
+
+            // Thêm thông tin hình ảnh
+            if (student.getImage() != null && !student.getImage().isEmpty()) {
+                studentData.put("IMAGE", student.getImage()); // Lưu hình ảnh ở đây
+            }
 
             db.collection("STUDENTS")
                     .document(student.getStudentID())

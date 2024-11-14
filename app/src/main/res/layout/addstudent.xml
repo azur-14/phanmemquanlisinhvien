@@ -55,11 +55,27 @@
         android:hint="Enter Major"
         android:inputType="text"/>
 
+    <ImageView
+        android:id="@+id/studentImageView"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginTop="10dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="Student Image"
+        android:background="@drawable/student_image" /> <!-- Thay 'ic_placeholder' bằng drawable của bạn -->
+
+    <Button
+        android:id="@+id/selectImageButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Select"
+        android:layout_marginTop="10dp"/>
+
     <Button
         android:id="@+id/addButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add Student"
+        android:text="Confirm"
         android:layout_marginTop="20dp"/>
 
 </LinearLayout>
