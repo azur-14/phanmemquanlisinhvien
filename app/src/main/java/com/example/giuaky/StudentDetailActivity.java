@@ -2,12 +2,14 @@ package com.example.giuaky;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -321,5 +323,15 @@ public class StudentDetailActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this, "No certificates found.", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+        return true;
     }
 }

@@ -1,8 +1,15 @@
 package com.example.giuaky;
 
+import static com.example.giuaky.DbQuery.studentList;
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,9 +30,22 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -71,6 +91,9 @@ public class StudentManagementActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.deleteButton);
         addButton = findViewById(R.id.addButton);
         viewButton = findViewById(R.id.viewButton);
+
+
+
 
         // Load students from Firestore
         loadStudents();
@@ -156,7 +179,7 @@ public class StudentManagementActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 students.clear();
-                students.addAll(DbQuery.studentList);
+                students.addAll(studentList);
                 Log.d("LoadStudents", "Number of students loaded: " + students.size());
                 studentAdapter.updateStudentList(students);
             }
@@ -270,10 +293,13 @@ public class StudentManagementActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.Import) {
             // Handle import functionality
+            importExcelFile();
             return true;
         }
         if (id == R.id.Export) {
             // Handle export functionality
+            createExcelFile(students);
+            Toast.makeText(this, "File danh sách sinh viên đã được lưu trong thư mục Downloads", Toast.LENGTH_LONG).show();
             return true;
         }
         if (id == android.R.id.home) {
@@ -282,4 +308,99 @@ public class StudentManagementActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+    public void importExcelFile() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        try {
+
+            // Path to the file in the Downloads directory
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+            File file = new File(downloadsDir, "ThemSinhVien.xlsx");
+            if (!file.exists()) {
+                Toast.makeText(this, "File không tồn tại trong thư mục Download", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            FileInputStream inputStream = new FileInputStream(file);
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
+
+            for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row == null) continue; // Skip empty rows
+
+                // Read data from columns and check for empty values
+                String maSV = row.getCell(0) != null ? row.getCell(0).getStringCellValue() : "";
+                String ten = row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "";
+                String khoa = row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "";
+                String nganh = row.getCell(3) != null ? row.getCell(3).getStringCellValue() : "";
+                int tuoi = row.getCell(4) != null ? (int) row.getCell(4).getNumericCellValue() : 0;
+                String soDienThoai = row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "";
+                String email = row.getCell(6) != null ? row.getCell(6).getStringCellValue() : "";
+
+                // Validate data before adding
+                if (!maSV.isEmpty() && !ten.isEmpty()) {
+                    students.add(new Student(maSV, ten, khoa, nganh, tuoi, soDienThoai, email));
+                }
+            }
+
+            // Notify success
+            Toast.makeText(this, "Nhập dữ liệu thành công!", Toast.LENGTH_SHORT).show();
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Đã xảy ra lỗi khi đọc file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+
+    public void createExcelFile(List<Student> students) {
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Student Data");
+
+        // Create the header row
+        Row headerRow = sheet.createRow(0);
+        String[] columns = {"Mã SV", "Tên", "Email", "Số điện thoại", "Tuổi", "Khoa", "Ngành"};
+        for (int i = 0; i < columns.length; i++) {
+            Cell cell = headerRow.createCell(i);
+            cell.setCellValue(columns[i]);
+        }
+
+        // Add data to each row
+        for (int i = 0; i < students.size(); i++) {
+            Row row = sheet.createRow(i + 1);
+            Student student = students.get(i);
+
+            row.createCell(0).setCellValue(student.getStudentID());
+            row.createCell(1).setCellValue(student.getName());
+            row.createCell(2).setCellValue(student.getEmail());
+            row.createCell(3).setCellValue(student.getPhoneNumber());
+            row.createCell(4).setCellValue(student.getAge());
+            row.createCell(5).setCellValue(student.getFaculty());
+            row.createCell(6).setCellValue(student.getMajor());
+        }
+
+        // Save the Excel file in the Downloads directory
+        try {
+            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            File file = new File(downloadsDir, "StudentData.xlsx");
+
+            FileOutputStream outputStream = new FileOutputStream(file);
+            workbook.write(outputStream);
+            outputStream.close();
+            workbook.close();
+
+            Toast.makeText(this, "File danh sách sinh viên đã được lưu trong thư mục Downloads", Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Đã xảy ra lỗi khi lưu file Excel", Toast.LENGTH_LONG).show();
+        }
+    }
+
 }
