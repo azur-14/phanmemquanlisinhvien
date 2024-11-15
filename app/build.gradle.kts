@@ -59,6 +59,5 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
 
     implementation("org.apache.poi:poi:5.2.2")    // Core Apache POI library
-    implementation("org.apache.poi:poi-ooxml:5.2.2")  // Required for .xlsx files
-
+    implementation("org.apache.poi:poi-ooxml:5.2.2")
 }

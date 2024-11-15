@@ -24,6 +24,15 @@ public class Student implements Serializable{
         this.email=email;
         this.image = image;
     }
+    public  Student(String studentID, String name, String faculty, String major, int age, String phonenumber, String email) {
+        this.studentID = studentID;
+        this.name = name;
+        this.faculty = faculty;
+        this.major = major;
+        this.age=age;
+        this.phonenumber = phonenumber;
+        this.email=email;
+    }
 
     public Student(String mssv, String name, String faculty, int i, String faculty1, String major, String email, String phonenumber, String image) {
     }

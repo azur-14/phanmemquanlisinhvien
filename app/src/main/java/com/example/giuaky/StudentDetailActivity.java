@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.view.MenuItem;
+import androidx.annotation.NonNull;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -141,7 +143,15 @@ public class StudentDetailActivity extends AppCompatActivity {
         intent.setAction(Intent.ACTION_GET_CONTENT);
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST_DIALOG);
     }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
 
+        if (id == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+        return true;
+    }
 
     private String convertBitmapToBase64(Bitmap bitmap) {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();

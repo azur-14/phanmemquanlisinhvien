@@ -1,15 +1,12 @@
 package com.example.giuaky;
-
 import static com.example.giuaky.DbQuery.studentList;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Environment;
-import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -23,18 +20,10 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
-
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import android.os.Environment;
+import android.provider.Settings;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -46,6 +35,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -91,9 +89,6 @@ public class StudentManagementActivity extends AppCompatActivity {
         deleteButton = findViewById(R.id.deleteButton);
         addButton = findViewById(R.id.addButton);
         viewButton = findViewById(R.id.viewButton);
-
-
-
 
         // Load students from Firestore
         loadStudents();
@@ -179,7 +174,7 @@ public class StudentManagementActivity extends AppCompatActivity {
             @Override
             public void onSuccess() {
                 students.clear();
-                students.addAll(studentList);
+                students.addAll(DbQuery.studentList);
                 Log.d("LoadStudents", "Number of students loaded: " + students.size());
                 studentAdapter.updateStudentList(students);
             }
@@ -263,53 +258,6 @@ public class StudentManagementActivity extends AppCompatActivity {
             });
         }
     }
-
-    private void viewSelectedStudents() {
-        List<Student> selectedStudents = studentAdapter.getSelectedStudents();
-
-        if (selectedStudents.size() == 1) {
-            // Proceed if exactly one student is selected
-            Intent intent = new Intent(this, StudentDetailActivity.class);
-            intent.putExtra("SELECTED_STUDENT", selectedStudents.get(0)); // Pass the single selected student
-            startActivity(intent);
-        } else if (selectedStudents.isEmpty()) {
-            // Notify the user if no student is selected
-            Toast.makeText(this, "Please select one student to view.", Toast.LENGTH_SHORT).show();
-        } else {
-            // Notify the user if more than one student is selected
-            Toast.makeText(this, "Please select only one student to view.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.Import) {
-            // Handle import functionality
-            importExcelFile();
-            return true;
-        }
-        if (id == R.id.Export) {
-            // Handle export functionality
-            createExcelFile(students);
-            Toast.makeText(this, "File danh sách sinh viên đã được lưu trong thư mục Downloads", Toast.LENGTH_LONG).show();
-            return true;
-        }
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
     public void importExcelFile() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -403,4 +351,47 @@ public class StudentManagementActivity extends AppCompatActivity {
         }
     }
 
+    private void viewSelectedStudents() {
+        List<Student> selectedStudents = studentAdapter.getSelectedStudents();
+
+        if (selectedStudents.size() == 1) {
+            // Proceed if exactly one student is selected
+            Intent intent = new Intent(this, StudentDetailActivity.class);
+            intent.putExtra("SELECTED_STUDENT", selectedStudents.get(0)); // Pass the single selected student
+            startActivity(intent);
+        } else if (selectedStudents.isEmpty()) {
+            // Notify the user if no student is selected
+            Toast.makeText(this, "Please select one student to view.", Toast.LENGTH_SHORT).show();
+        } else {
+            // Notify the user if more than one student is selected
+            Toast.makeText(this, "Please select only one student to view.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.Import) {
+            // Handle import functionality
+            return true;
+        }
+        if (id == R.id.Export) {
+            createExcelFile(students);
+            Toast.makeText(this, "File danh sách sinh viên đã được lưu trong thư mục Downloads", Toast.LENGTH_LONG).show();
+            importExcelFile();
+            return true;
+        }
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
