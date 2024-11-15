@@ -1,78 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#242526"
-    tools:context=".LoginActivity">
+    android:background="#FDFDFD"
+    android:backgroundTint="#FDFDFD"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/tv_title"
+    <!-- LinearLayout for WELCOME and BACK -->
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="411dp"
+        android:layout_height="236dp"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="10dp"
+        app:srcCompat="@drawable/logo" />
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:drawableTop="@drawable/iconlogin_fill0_wght400_grad0_opsz24"
-        android:drawablePadding="10dp"
-        android:text="LOGIN"
-        android:textColor="#FFFFFF"
-        android:textSize="45sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        tools:ignore="ExtraText">
+
+        <!-- WELCOME Text -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="WELCOME"
+            android:textColor="#000000"
+            android:textSize="32dp"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:gravity="center"
+        android:text="Please enter your email and password."
+        android:textSize="16dp"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/et_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:background="@drawable/et_border"
-        android:drawableLeft="@drawable/mail_fill0_wght400_grad0_opsz24"
-        android:drawablePadding="10dp"
-        android:hint="@string/hint1"
-        android:padding="12dp"
-        android:textColor="#dce1eb"
-        android:textColorHint="#677483"
-        android:textStyle="italic"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tv_title"
-        app:layout_constraintVertical_bias="0.12"
-        tools:layout_editor_absoluteX="20dp" />
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/backgroud_text"
+        android:backgroundTint="#FFFFFF"
+        android:drawablePadding="8dp"
+        android:hint="Enter your email"
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textAlignment="viewStart" />
 
     <EditText
         android:id="@+id/et_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="24dp"
-        android:background="@drawable/et_border"
-        android:drawableLeft="@drawable/password_fill0_wght400_grad0_opsz24"
-        android:drawablePadding="10dp"
-        android:hint="@string/hint2"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/backgroud_text"
+        android:backgroundTint="#FFFFFF"
+        android:drawablePadding="8dp"
+        android:hint="Enter your password"
         android:inputType="textPassword"
-        android:padding="12dp"
-        android:textColor="#dce1eb"
-        android:textColorHint="#677483"
-        android:textStyle="italic"
-        app:layout_constraintStart_toStartOf="@id/et_email"
-        app:layout_constraintTop_toBottomOf="@id/et_email" />
+        android:minHeight="48dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:textAlignment="viewStart" />
 
     <Button
         android:id="@+id/btn_login"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="48dp"
-        android:backgroundTint="#FFC107"
-        android:text="Login"
-        android:textAllCaps="true"
-        android:textColor="#0B0A0A"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:cornerRadius="23dp"
-        app:layout_constraintEnd_toEndOf="@id/et_password"
-        app:layout_constraintStart_toStartOf="@id/et_password"
-        app:layout_constraintTop_toBottomOf="@id/et_password" />
+        android:layout_width="121dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="24dp"
+        android:backgroundTint="#345EA7"
+        android:text="LOGIN" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

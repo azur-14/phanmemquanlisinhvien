@@ -3,15 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="20dp"
-    android:background = "#242526">
+    android:layout_marginBottom="20dp">
 
     <TextView
         android:id="@+id/tv_login_date_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Login date: "
-        android:textColor = "#7d8da1"
+        android:textColor="#7d8da1"
         app:layout_constraintStart_toStartOf="@id/tv_location_title"
         app:layout_constraintTop_toBottomOf="@id/tv_location_title" />
 
@@ -19,8 +18,8 @@
         android:id="@+id/tv_login_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor = "#7d8da1"
         android:text="20/11/2023"
+        android:textColor="#7d8da1"
         app:layout_constraintStart_toEndOf="@id/tv_login_date_title"
         app:layout_constraintTop_toTopOf="@id/tv_login_date_title" />
 
@@ -30,7 +29,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="VietNam"
-        android:textColor = "#7d8da1"
+        android:textColor="#7d8da1"
         app:layout_constraintStart_toEndOf="@id/tv_location_title"
         app:layout_constraintTop_toTopOf="@id/tv_location_title" />
 
@@ -41,7 +40,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="25dp"
         android:text="Location: "
-        android:textColor = "#7d8da1"
+        android:textColor="#7d8da1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

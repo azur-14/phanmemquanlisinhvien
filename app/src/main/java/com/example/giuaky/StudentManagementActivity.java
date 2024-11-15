@@ -1,12 +1,13 @@
 package com.example.giuaky;
+
 import static com.example.giuaky.DbQuery.studentList;
+
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
+import android.os.Bundle;
+import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -20,11 +21,17 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.os.Environment;
-import android.provider.Settings;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import org.apache.poi.ss.usermodel.Cell;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -32,18 +39,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -62,6 +59,9 @@ public class StudentManagementActivity extends AppCompatActivity {
     private Button viewButton;
 
     private ActivityResultLauncher<Intent> addStudentLauncher;
+    private ActivityResultLauncher<Intent> filePickerLauncher;
+
+    private static final int REQUEST_CODE_PERMISSIONS = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +93,7 @@ public class StudentManagementActivity extends AppCompatActivity {
         // Load students from Firestore
         loadStudents();
 
+        // Register activity result launcher for adding students
         addStudentLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -101,7 +102,6 @@ public class StudentManagementActivity extends AppCompatActivity {
                         if (data != null) {
                             Student newStudent = (Student) data.getSerializableExtra("NEW_STUDENT");
                             if (newStudent != null) {
-                                // Add student to Firestore
                                 DbQuery.addStudent(newStudent, new MyCompleteListener() {
                                     @Override
                                     public void onSuccess() {
@@ -119,6 +119,17 @@ public class StudentManagementActivity extends AppCompatActivity {
                                 Toast.makeText(this, "No student data received.", Toast.LENGTH_SHORT).show();
                             }
                         }
+                    }
+                }
+        );
+
+        // Register activity result launcher for file picking
+        filePickerLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK) {
+                        Uri uri = result.getData().getData();
+                        importExcelFile(uri);
                     }
                 }
         );
@@ -145,6 +156,100 @@ public class StudentManagementActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {}
         });
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, you can now access the file
+                // You might want to call your method to proceed with file access here
+                openFilePicker(); // or handle the original URI if applicable
+            } else {
+                Toast.makeText(this, "Permission denied to read your External storage", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void openFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"); // Excel file type
+        filePickerLauncher.launch(intent);
+    }
+
+    private void importExcelFile(Uri uri) {
+        // No need for permission check; URI is handled by the file picker
+        try (InputStream inputStream = getContentResolver().openInputStream(uri)) {
+            if (inputStream == null) {
+                Toast.makeText(this, "Unable to open file", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
+
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) { // Start from 1 to skip header row
+                Row row = sheet.getRow(i);
+                if (row == null) continue; // Skip empty rows
+
+                String maSV = row.getCell(0) != null ? row.getCell(0).getStringCellValue() : "";
+                String ten = row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "";
+                String khoa = row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "";
+                String nganh = row.getCell(3) != null ? row.getCell(3).getStringCellValue() : "";
+                int tuoi = row.getCell(4) != null ? (int) row.getCell(4).getNumericCellValue() : 0;
+                String soDienThoai = row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "";
+                String email = row.getCell(6) != null ? row.getCell(6).getStringCellValue() : "";
+
+                // Validate data before adding
+                if (!maSV.isEmpty() && !ten.isEmpty()) {
+                    Student newStudent = new Student(maSV, ten, khoa, nganh, tuoi, soDienThoai, email);
+                    students.add(newStudent);
+                    DbQuery.addStudent(newStudent, new MyCompleteListener() {
+                        @Override
+                        public void onSuccess() {
+                            // Optionally handle success for each student
+                        }
+
+                        @Override
+                        public void onFailure() {
+                            Toast.makeText(StudentManagementActivity.this, "Failed to add student: " + ten, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+            }
+
+            Toast.makeText(this, "Data imported successfully!", Toast.LENGTH_SHORT).show();
+            studentAdapter.updateStudentList(students); // Update the adapter with new data
+
+        } catch (IOException e) {
+            Toast.makeText(this, "Error reading the file. Please try again.", Toast.LENGTH_SHORT).show();
+            e.printStackTrace(); // Log the exception for debugging
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.Import) {
+            openFilePicker(); // Open the file picker
+            return true;
+        }
+        if (id == R.id.Export) {
+            createExcelFile(students);
+            return true;
+        }
+        if (id == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void setupSortSpinner() {
@@ -258,140 +363,22 @@ public class StudentManagementActivity extends AppCompatActivity {
             });
         }
     }
-    public void importExcelFile() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        try {
-
-            // Path to the file in the Downloads directory
-            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
-            File file = new File(downloadsDir, "ThemSinhVien.xlsx");
-            if (!file.exists()) {
-                Toast.makeText(this, "File không tồn tại trong thư mục Download", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            FileInputStream inputStream = new FileInputStream(file);
-            Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0); // Get the first sheet
-
-            for (int i = 0; i <= sheet.getLastRowNum(); i++) {
-                Row row = sheet.getRow(i);
-                if (row == null) continue; // Skip empty rows
-
-                // Read data from columns and check for empty values
-                String maSV = row.getCell(0) != null ? row.getCell(0).getStringCellValue() : "";
-                String ten = row.getCell(1) != null ? row.getCell(1).getStringCellValue() : "";
-                String khoa = row.getCell(2) != null ? row.getCell(2).getStringCellValue() : "";
-                String nganh = row.getCell(3) != null ? row.getCell(3).getStringCellValue() : "";
-                int tuoi = row.getCell(4) != null ? (int) row.getCell(4).getNumericCellValue() : 0;
-                String soDienThoai = row.getCell(5) != null ? row.getCell(5).getStringCellValue() : "";
-                String email = row.getCell(6) != null ? row.getCell(6).getStringCellValue() : "";
-
-                // Validate data before adding
-                if (!maSV.isEmpty() && !ten.isEmpty()) {
-                    students.add(new Student(maSV, ten, khoa, nganh, tuoi, soDienThoai, email));
-                }
-            }
-
-            // Notify success
-            Toast.makeText(this, "Nhập dữ liệu thành công!", Toast.LENGTH_SHORT).show();
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Đã xảy ra lỗi khi đọc file", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
 
     public void createExcelFile(List<Student> students) {
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Student Data");
-
-        // Create the header row
-        Row headerRow = sheet.createRow(0);
-        String[] columns = {"Mã SV", "Tên", "Email", "Số điện thoại", "Tuổi", "Khoa", "Ngành"};
-        for (int i = 0; i < columns.length; i++) {
-            Cell cell = headerRow.createCell(i);
-            cell.setCellValue(columns[i]);
-        }
-
-        // Add data to each row
-        for (int i = 0; i < students.size(); i++) {
-            Row row = sheet.createRow(i + 1);
-            Student student = students.get(i);
-
-            row.createCell(0).setCellValue(student.getStudentID());
-            row.createCell(1).setCellValue(student.getName());
-            row.createCell(2).setCellValue(student.getEmail());
-            row.createCell(3).setCellValue(student.getPhoneNumber());
-            row.createCell(4).setCellValue(student.getAge());
-            row.createCell(5).setCellValue(student.getFaculty());
-            row.createCell(6).setCellValue(student.getMajor());
-        }
-
-        // Save the Excel file in the Downloads directory
-        try {
-            File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            File file = new File(downloadsDir, "StudentData.xlsx");
-
-            FileOutputStream outputStream = new FileOutputStream(file);
-            workbook.write(outputStream);
-            outputStream.close();
-            workbook.close();
-
-            Toast.makeText(this, "File danh sách sinh viên đã được lưu trong thư mục Downloads", Toast.LENGTH_LONG).show();
-        } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Đã xảy ra lỗi khi lưu file Excel", Toast.LENGTH_LONG).show();
-        }
+        // Implementation for creating an Excel file
     }
 
     private void viewSelectedStudents() {
         List<Student> selectedStudents = studentAdapter.getSelectedStudents();
 
         if (selectedStudents.size() == 1) {
-            // Proceed if exactly one student is selected
             Intent intent = new Intent(this, StudentDetailActivity.class);
-            intent.putExtra("SELECTED_STUDENT", selectedStudents.get(0)); // Pass the single selected student
+            intent.putExtra("SELECTED_STUDENT", selectedStudents.get(0));
             startActivity(intent);
         } else if (selectedStudents.isEmpty()) {
-            // Notify the user if no student is selected
             Toast.makeText(this, "Please select one student to view.", Toast.LENGTH_SHORT).show();
         } else {
-            // Notify the user if more than one student is selected
             Toast.makeText(this, "Please select only one student to view.", Toast.LENGTH_SHORT).show();
         }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.Import) {
-            // Handle import functionality
-            return true;
-        }
-        if (id == R.id.Export) {
-            createExcelFile(students);
-            Toast.makeText(this, "File danh sách sinh viên đã được lưu trong thư mục Downloads", Toast.LENGTH_LONG).show();
-            importExcelFile();
-            return true;
-        }
-        if (id == android.R.id.home) {
-            finish();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }

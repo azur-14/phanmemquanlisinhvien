@@ -69,20 +69,6 @@ public class UserActivity extends AppCompatActivity implements UserAdapter.OnUse
             Intent intent = new Intent(UserActivity.this, CreateEditUserActivity.class);
             intent.putExtra("action", "add");
             startActivity(intent);
-        } else if (item.getItemId() == R.id.account_management) {
-            Intent intent = new Intent(this, UserActivity.class);
-            startActivity(intent);
-        } else if (item.getItemId() == R.id.student_management) {
-            Intent intent = new Intent(this, StudentManagementActivity.class);
-            startActivity(intent);
-        } else if (item.getItemId() == R.id.info) {
-            Intent intent = new Intent(this, ProfileActivity.class);
-            intent.putExtra("accountUID", accountUID);
-            startActivity(intent);
-        } else if (item.getItemId() == R.id.log_out) {
-            Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
-            finish();
         }
         return super.onOptionsItemSelected(item);
     }
