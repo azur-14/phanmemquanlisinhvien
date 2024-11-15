@@ -1,0 +1,163 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#242526"
+    tools:context=".CreateEditUserActivity">
+
+    <!-- ImageView Title -->
+    <ImageView
+        android:id="@+id/imageViewTitle"
+        android:layout_width="216dp"
+        android:layout_height="187dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/person_add_fill0_wght400_grad0_opsz24"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Subtitle TextView -->
+    <TextView
+        android:id="@+id/tv_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Create User"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imageViewTitle" />
+
+    <!-- Select Image Button -->
+    <Button
+        android:id="@+id/btn_selectimage"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FFC107"
+        android:text="Select"
+        android:textAllCaps="true"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/tv_subtitle" />
+
+    <!-- Email EditText -->
+    <EditText
+        android:id="@+id/et_email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:drawableLeft="@drawable/email_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="15dp"
+        android:hint="Email"
+        android:textColor="#dce1eb"
+        android:textColorHint="#677483"
+        app:layout_constraintTop_toBottomOf="@id/btn_selectimage" />
+
+    <!-- Name EditText -->
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:hint="@string/hint3"
+        android:drawableLeft="@drawable/create_name_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="15dp"
+        android:textColorHint="#677483"
+        android:textColor="#dce1eb"
+        app:layout_constraintTop_toBottomOf="@id/et_email" />
+
+    <!-- Age EditText -->
+    <EditText
+        android:id="@+id/et_age"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:drawableLeft="@drawable/age_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="15dp"
+        android:hint="@string/hint4"
+        android:textColorHint="#677483"
+        android:textColor="#dce1eb"
+        app:layout_constraintTop_toBottomOf="@id/et_name" />
+
+    <!-- Phone Number EditText -->
+    <EditText
+        android:id="@+id/et_phoneNumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:hint="@string/hint5"
+        android:drawableLeft="@drawable/call_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="15dp"
+        android:textColorHint="#677483"
+        android:textColor="#dce1eb"
+        app:layout_constraintTop_toBottomOf="@id/et_age" />
+
+    <!-- RadioGroup for Role -->
+    <RadioGroup
+        android:id="@+id/rg_role"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/et_phoneNumber">
+
+        <RadioButton
+            android:id="@+id/rb_employee"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#41f1b6"
+            android:textStyle="bold"
+            android:text="Employee" />
+
+        <RadioButton
+            android:id="@+id/rb_manager"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#ff7782"
+            android:textStyle="bold"
+            android:text="Manager" />
+    </RadioGroup>
+
+    <!-- RadioGroup for Status -->
+    <RadioGroup
+        android:id="@+id/rg_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/rg_role">
+
+        <RadioButton
+            android:id="@+id/rb_inactive"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="#ff7782"
+            android:textStyle="bold"
+            android:text="Inactive" />
+    </RadioGroup>
+
+    <!-- Save Button -->
+    <Button
+        android:id="@+id/btn_save"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="#FFC107"
+        android:text="Create"
+        android:textAllCaps="true"
+        android:textColor="#000000"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/rg_status" />
+</androidx.constraintlayout.widget.ConstraintLayout>

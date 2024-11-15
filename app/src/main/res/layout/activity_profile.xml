@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#242526"
+    tools:context=".ProfileActivity">
+
+    <FrameLayout
+        android:id="@+id/fl"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.2">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/civ_avatar_edit"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:src="@drawable/avatar" />
+
+        <ImageView
+            android:id="@+id/iv_camera"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center|bottom"
+            android:layout_marginLeft="45dp"
+            app:layout_constraintEnd_toEndOf="@id/civ_avatar_edit"
+            app:layout_constraintTop_toBottomOf="@id/civ_avatar_edit"
+            app:srcCompat="@drawable/photo_camera_fill0_wght400_grad0_opsz24" />
+    </FrameLayout>
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="ABCXYZ"
+        android:textColor = "#FFC170"
+        android:textSize="25dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@id/fl"
+        app:layout_constraintStart_toStartOf="@id/fl"
+        app:layout_constraintTop_toBottomOf="@id/fl" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_left"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.05" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/gl_right"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.95" />
+
+    <EditText
+        android:id="@+id/et_age"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/age_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="10dp"
+        android:textColor = "#dce1eb"
+        android:enabled="false"
+        android:text="20"
+        app:layout_constraintEnd_toEndOf="@id/gl_right"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/tv_name" />
+
+    <EditText
+        android:id="@+id/et_phoneNumber"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/call_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="10dp"
+        android:textColor = "#dce1eb"
+        android:text="(028) 37755046"
+        app:layout_constraintEnd_toEndOf="@id/gl_right"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/et_age" />
+
+    <EditText
+        android:id="@+id/et_role"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:drawableLeft="@drawable/position_fill0_wght400_grad0_opsz24"
+        android:drawablePadding="10dp"
+        android:textColor = "#dce1eb"
+        android:text="Admin"
+        app:layout_constraintEnd_toEndOf="@id/gl_right"
+        app:layout_constraintStart_toStartOf="@id/gl_left"
+        app:layout_constraintTop_toBottomOf="@id/et_phoneNumber" />
+
+    <Button
+        android:id="@+id/btn_upload"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="20dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="#FFC107"
+        app:cornerRadius="15dp"
+        android:textStyle = "bold"
+        android:textColor = "#000000"
+        android:text="Upload"
+        app:layout_constraintEnd_toEndOf="@id/et_role"
+        app:layout_constraintStart_toStartOf="@id/et_role"
+        app:layout_constraintTop_toBottomOf="@id/et_role" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/create"
+        android:title="Add"
+        android:icon = "@drawable/add_fill0_wght400_grad0_opsz24"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/account_management"
+        android:title="Account Management" />
+    <item
+        android:id="@+id/student_management"
+        android:title="Student Management" />
+    <item
+        android:id="@+id/info"
+        android:title="Info" />
+    <item
+        android:id="@+id/log_out"
+        android:title="Log out" />
+</menu>
