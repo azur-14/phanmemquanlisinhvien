@@ -79,11 +79,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    private String userAccountUID; // Định nghĩa biến userAccountUID
+
     private void getUserRole() {
         DbQuery.getRole().addOnSuccessListener(new OnSuccessListener<Integer>() {
             @Override
             public void onSuccess(Integer role) {
-                Log.d("MainActivity", "Role retrieved: " + role); // Log the retrieved role
+                Log.d("MainActivity", "Role retrieved: " + role);
+
+                // Lấy UID của người dùng từ Firebase
+                userAccountUID = mAuth.getCurrentUser().getUid(); // Lưu UID
 
                 // Hiển thị thông báo chào mừng và quản lý nút dựa trên vai trò
                 switch (role) {
@@ -95,13 +100,13 @@ public class MainActivity extends AppCompatActivity {
                     case 1: // Manager
                         welcomeText.setText("Welcome, Manager");
                         btnStudentManagement.setVisibility(View.VISIBLE);
-                        btnUserAccountManagement.setVisibility(View.GONE); // Ẩn nút quản lý người dùng
+                        btnUserAccountManagement.setVisibility(View.GONE);
                         break;
                     case 0: // Employee
                     default:
                         welcomeText.setText("Welcome, Employee");
-                        btnUserAccountManagement.setVisibility(View.GONE); // Ẩn nút quản lý người dùng
-                        btnStudentManagement.setVisibility(View.GONE); // Ẩn nút quản lý sinh viên
+                        btnUserAccountManagement.setVisibility(View.GONE);
+                        btnStudentManagement.setVisibility(View.GONE);
                         break;
                 }
             }
@@ -112,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
                 btnUserAccountManagement.setVisibility(View.GONE);
                 btnStudentManagement.setVisibility(View.GONE);
                 Log.e("UserRole", "Failed to get user role", e);
-                Toast.makeText(MainActivity.this, "Error retrieving user role", Toast.LENGTH_SHORT).show(); // Thông báo lỗi cho người dùng
+                Toast.makeText(MainActivity.this, "Error retrieving user role", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -137,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startUserProfileActivity() {
         Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+        intent.putExtra("accountUID", userAccountUID); // Truyền accountUID
         startActivity(intent);
     }
 }

@@ -6,20 +6,26 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64; // Sử dụng kiểu import của Android
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -82,7 +88,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                         String base64Avatar = documentSnapshot.getString("avatar");
                         if (base64Avatar != null) {
-                            byte[] binaryData = Base64.getDecoder().decode(base64Avatar);
+                            byte[] binaryData = Base64.decode(base64Avatar, Base64.DEFAULT); // Sử dụng Base64 của Android
                             Bitmap bitmap = BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length);
                             civAvatarEdit.setImageBitmap(bitmap);
                         }
@@ -131,7 +137,8 @@ public class ProfileActivity extends AppCompatActivity {
             InputStream inputStream = getContentResolver().openInputStream(imgPath);
             byte[] avatarBytes = getBytes(inputStream);
 
-            String base64Avatar = Base64.getEncoder().encodeToString(avatarBytes);
+            // Chuyển đổi mảng byte thành Base64
+            String base64Avatar = Base64.encodeToString(avatarBytes, Base64.DEFAULT);
 
             Map<String, Object> data = new HashMap<>();
             data.put("avatar", base64Avatar);
@@ -139,8 +146,8 @@ public class ProfileActivity extends AppCompatActivity {
             firestore.collection("Users").document(accountUID).update(data)
                     .addOnSuccessListener(unused -> Toast.makeText(this, "Avatar updated successfully", Toast.LENGTH_LONG).show())
                     .addOnFailureListener(e -> {
-                        Toast.makeText(this, "Failed to update avatar", Toast.LENGTH_SHORT).show();
-                        e.printStackTrace();
+                        Toast.makeText(this, "Failed to update avatar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e("ProfileActivity", "Error updating avatar", e);
                     });
         } else {
             Toast.makeText(this, "No image selected", Toast.LENGTH_SHORT).show();

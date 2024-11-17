@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.TaskCompletionSource;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -147,13 +148,14 @@ public class DbQuery {
     }
     public static Task<Integer> getRole() {
         final TaskCompletionSource<Integer> taskCompletionSource = new TaskCompletionSource<>();
-        String uid = FirebaseAuth.getInstance().getUid();
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser(); // Lấy người dùng hiện tại
 
         // Log the UID
-        if (uid != null) {
-            Log.d("DbQuery", "User UID: " + uid); // Log the UID
+        if (user != null) {
+            String uid = user.getUid(); // Lấy UID
+            Log.d("DbQuery", "User UID: " + uid); // Log UID
 
-            db.collection("USERS").document(uid)
+            db.collection("Users").document(uid)
                     .get()
                     .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override

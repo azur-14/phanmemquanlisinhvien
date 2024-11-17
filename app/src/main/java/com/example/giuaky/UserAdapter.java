@@ -2,20 +2,17 @@ package com.example.giuaky;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-
 import java.util.Base64;
-
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class UserAdapter extends FirestoreRecyclerAdapter<User, UserAdapter.ViewHolder> {
@@ -87,17 +84,29 @@ public class UserAdapter extends FirestoreRecyclerAdapter<User, UserAdapter.View
         }
 
         public void bindData(int position, User user) {
-            // set avatar
+            // Set name and role
             tvName.setText(user.getName());
             tvRole.setText(user.getRole() == 0 ? "Normal" : "Locked");
 
-            if (user.getAvatar() != null) {
-                byte[] binaryData = null;
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                    binaryData = Base64.getDecoder().decode(user.getAvatar());
+            // Check if the avatar is not null or empty
+            if (user.getAvatar() != null && !user.getAvatar().trim().isEmpty()) {
+                try {
+                    // Trim and validate Base64 string
+                    String base64Avatar = user.getAvatar().trim();
+                    if (base64Avatar.matches("^[A-Za-z0-9+/=]+$")) {
+                        byte[] binaryData = Base64.getDecoder().decode(base64Avatar);
+                        Bitmap bitmap = BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length);
+                        civAvatar.setImageBitmap(bitmap);
+                    } else {
+                        // Handle invalid Base64 string
+                          Log.e("BindData", "Invalid Base64 string for avatar: " + base64Avatar);
+                    }
+                } catch (IllegalArgumentException e) {
+                    Log.e("BindData", "Decoding error: " + e.getMessage());
                 }
-                Bitmap bitmap = BitmapFactory.decodeByteArray(binaryData, 0, binaryData.length);
-                civAvatar.setImageBitmap(bitmap);
+            } else {
+                // Handle case where avatar is null or empty
+                civAvatar.setImageResource(R.drawable.avatar); // Set a default avatar
             }
         }
     }
